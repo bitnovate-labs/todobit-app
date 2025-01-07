@@ -72,14 +72,17 @@ function MobileNavigation() {
     try {
       const hashtag = category.startsWith("#") ? category.slice(1) : category;
       await todoApi.create(newTask, hashtag);
-      // Reset zoom level
-      if ("visualViewport" in window) {
-        window.scrollTo(0, 0);
-      }
+
       // Reset form
       setNewTask("");
       setCategory("");
       setIsModalVisible(false);
+
+      // Reset zoom level
+      if ("visualViewport" in window) {
+        window.scrollTo(0, 0);
+        document.body.style.zoom = 1;
+      }
     } catch (error) {
       console.error("Error adding task:", error);
     }
