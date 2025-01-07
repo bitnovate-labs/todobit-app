@@ -5,6 +5,8 @@ import {
   PlusOutlined,
   HomeOutlined,
   BarChartOutlined,
+  FolderOutlined,
+  SettingOutlined,
 } from "@ant-design/icons";
 import { todoApi, supabase } from "../lib/supabase";
 
@@ -68,6 +70,7 @@ function MobileNavigation() {
     fetchCategories();
   }, [isModalVisible]);
 
+  // HANDLE ADD TASK
   const handleAddTask = async () => {
     try {
       const hashtag = category.startsWith("#") ? category.slice(1) : category;
@@ -77,12 +80,6 @@ function MobileNavigation() {
       setNewTask("");
       setCategory("");
       setIsModalVisible(false);
-
-      // Reset zoom level
-      if ("visualViewport" in window) {
-        window.scrollTo(0, 0);
-        document.body.style.zoom = 1;
-      }
     } catch (error) {
       console.error("Error adding task:", error);
     }
@@ -90,8 +87,7 @@ function MobileNavigation() {
 
   return (
     <>
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 h-20 flex items-center justify-around px-4 md:hidden shadow-xl">
-        <div className="flex-1" /> {/* Spacer */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 h-24 flex items-center justify-around px-4 md:hidden shadow-xl">
         {/* HOME BUTTON */}
         <div className="flex-1 flex justify-center">
           <Button
@@ -101,11 +97,27 @@ function MobileNavigation() {
                 ? "text-blue-500 border-none"
                 : "text-gray-500"
             } focus:outline-none`}
-            icon={<HomeOutlined style={{ fontSize: "30px" }} />}
+            icon={<HomeOutlined style={{ fontSize: "26px" }} />}
             onClick={() => navigate("/")}
             style={{
-              fontSize: "18px",
-              padding: "20px 20px",
+              paddingLeft: "16px",
+            }}
+          />
+        </div>
+        <div className="flex-1" /> {/* Spacer */}
+        {/* TASK GROUP BUTTON */}
+        <div className="flex-1 flex justify-center m-0">
+          <Button
+            type="ghost"
+            className={`flex items-center justify-center ${
+              location.pathname === "/groups"
+                ? "text-blue-500 border-none"
+                : "text-gray-500"
+            } focus:outline-none`}
+            icon={<FolderOutlined style={{ fontSize: "30px" }} />}
+            onClick={() => navigate("/groups")}
+            style={{
+              padding: "0 20px",
             }}
           />
         </div>
@@ -119,7 +131,7 @@ function MobileNavigation() {
             onClick={() => setIsModalVisible(true)}
             style={{
               fontSize: "18px",
-              padding: "22px 22px",
+              padding: "24px 24px",
             }}
             className="flex items-center justify-center"
           />
@@ -134,17 +146,30 @@ function MobileNavigation() {
                 ? "text-blue-500 border-none"
                 : "text-gray-500"
             } focus:outline-none`}
-            icon={
-              <BarChartOutlined style={{ fontSize: "30px", padding: "20px" }} />
-            }
+            icon={<BarChartOutlined style={{ fontSize: "30px" }} />}
             onClick={() => navigate("/stats")}
             style={{
-              fontSize: "18px",
-              padding: "22px 22px",
+              padding: "0 20px",
             }}
           />
         </div>
         <div className="flex-1" /> {/* Spacer */}
+        {/* SETTINGS BUTTON */}
+        <div className="flex-1 flex justify-center">
+          <Button
+            type="ghost"
+            className={`flex items-center justify-center ${
+              location.pathname === "/settings"
+                ? "text-blue-500 border-none"
+                : "text-gray-500"
+            } focus:outline-none`}
+            icon={<SettingOutlined style={{ fontSize: "30px" }} />}
+            onClick={() => navigate("/settings")}
+            style={{
+              paddingRight: "16px",
+            }}
+          />
+        </div>
       </div>
 
       <Modal

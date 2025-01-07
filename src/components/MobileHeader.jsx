@@ -7,11 +7,6 @@ function MobileHeader({ title }) {
 
   const menuItems = [
     {
-      key: "groups",
-      label: "Task Groups",
-      onClick: () => navigate("/groups"),
-    },
-    {
       key: "completed",
       label: "Completed Tasks",
       onClick: () => navigate("/completed"),
@@ -31,9 +26,12 @@ function MobileHeader({ title }) {
         trigger={["click"]}
       >
         <Button
-          icon={<MenuOutlined />}
+          icon={<MenuOutlined style={{ fontSize: "20px" }} />}
           type="text"
           className="hover:bg-gray-100"
+          style={{
+            paddingRight: "24px",
+          }}
         />
       </Dropdown>
       <h2 className="text-lg font-semibold">{title}</h2>

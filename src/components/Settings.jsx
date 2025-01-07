@@ -3,7 +3,7 @@ import MobileHeader from "./MobileHeader";
 
 function Settings() {
   return (
-    <div className="max-w-2xl mx-auto space-y-4  px-4 md:mt-0">
+    <div className="max-w-2xl mx-auto space-y-4 md:mt-0">
       <div className="hidden md:flex items-center justify-center h-14">
         <h2 className="text-lg font-semibold">Settings</h2>
       </div>
