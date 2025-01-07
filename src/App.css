@@ -1,0 +1,26 @@
+/* Custom styles that complement Tailwind */
+.color-empty {
+  fill: #ebedf0;
+}
+.color-scale-1 {
+  fill: #9be9a8;
+}
+.color-scale-2 {
+  fill: #40c463;
+}
+.color-scale-3 {
+  fill: #30a14e;
+}
+.color-scale-4 {
+  fill: #216e39;
+}
+
+/* Task animation styles */
+.task-exit {
+  opacity: 1;
+}
+
+.task-exit-active {
+  opacity: 0;
+  transition: opacity 1500ms ease-out;
+}
