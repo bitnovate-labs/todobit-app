@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -13,8 +12,10 @@ import DesktopFooter from "./components/DesktopFooter";
 import TodoList from "./components/TodoList";
 import Statistics from "./components/Statistics";
 import CompletedTasks from "./components/CompletedTasks";
+import TaskGroups from "./components/TaskGroups";
 import Settings from "./components/Settings";
 import "./App.css";
+import { useEffect } from "react";
 
 function AppContent() {
   const location = useLocation();
@@ -38,6 +39,8 @@ function AppContent() {
             <Routes>
               <Route path="/" element={<TodoList />} />
               <Route path="/stats" element={<Statistics />} />
+              <Route path="/groups" element={<TaskGroups />} />
+              <Route path="/groups" element={<TaskGroups />} />
               <Route path="/settings" element={<Settings />} />
             </Routes>
           </Layout.Content>
@@ -49,6 +52,7 @@ function AppContent() {
           <Routes>
             <Route path="/" element={<TodoList />} />
             <Route path="/stats" element={<Statistics />} />
+            <Route path="/groups" element={<TaskGroups />} />
             <Route path="/completed" element={<CompletedTasks />} />
             <Route path="/settings" element={<Settings />} />
           </Routes>

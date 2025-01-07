@@ -90,7 +90,7 @@ function MobileNavigation() {
 
   return (
     <>
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 h-20 flex items-center justify-around px-4 md:hidden">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 h-20 flex items-center justify-around px-4 md:hidden shadow-xl">
         <div className="flex-1" /> {/* Spacer */}
         {/* HOME BUTTON */}
         <div className="flex-1 flex justify-center">
@@ -98,14 +98,14 @@ function MobileNavigation() {
             type="ghost"
             className={`flex items-center justify-center ${
               location.pathname === "/"
-                ? "text-blue-500 border-blue-500"
+                ? "text-blue-500 border-none"
                 : "text-gray-500"
             } focus:outline-none`}
-            icon={<HomeOutlined />}
+            icon={<HomeOutlined style={{ fontSize: "30px" }} />}
             onClick={() => navigate("/")}
             style={{
               fontSize: "18px",
-              padding: "22px 22px",
+              padding: "20px 20px",
             }}
           />
         </div>
@@ -131,10 +131,12 @@ function MobileNavigation() {
             type="ghost"
             className={`flex items-center justify-center ${
               location.pathname === "/stats"
-                ? "text-blue-500 border-blue-500"
+                ? "text-blue-500 border-none"
                 : "text-gray-500"
             } focus:outline-none`}
-            icon={<BarChartOutlined />}
+            icon={
+              <BarChartOutlined style={{ fontSize: "30px", padding: "20px" }} />
+            }
             onClick={() => navigate("/stats")}
             style={{
               fontSize: "18px",

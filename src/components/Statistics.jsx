@@ -49,7 +49,7 @@ function Statistics() {
   }, [selectedCategory]);
 
   return (
-    <div className="max-w-4xl mx-auto px-4 md:mt-0 space-y-4">
+    <div className="max-w-4xl mx-auto md:mt-0 space-y-4">
       <div className="hidden md:flex items-center justify-center h-14">
         <h2 className="text-lg font-semibold">Activity Overview</h2>
       </div>

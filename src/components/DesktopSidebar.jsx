@@ -3,8 +3,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import {
   HomeOutlined,
   BarChartOutlined,
-  SettingOutlined,
   CheckCircleOutlined,
+  SettingOutlined,
+  FolderOutlined,
 } from "@ant-design/icons";
 
 function DesktopSidebar() {
@@ -26,6 +27,11 @@ function DesktopSidebar() {
       key: "/completed",
       icon: <CheckCircleOutlined />,
       label: "Completed",
+    },
+    {
+      key: "/groups",
+      icon: <FolderOutlined />,
+      label: "Task Groups",
     },
     {
       key: "/settings",

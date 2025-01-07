@@ -17,7 +17,7 @@ export const subscribeToTodos = (callback) => {
     .subscribe();
 };
 
-// Todo CRUD operations
+// CRUD operations
 export const todoApi = {
   // Create a new todo
   async create(task, hashtag) {
@@ -49,6 +49,19 @@ export const todoApi = {
       .select("*")
       .eq("hashtag", hashtag)
       .order("created_at", { ascending: false });
+
+    if (error) throw error;
+    return data;
+  },
+
+  // Update todo text
+  async update(id, task) {
+    const { data, error } = await supabase
+      .from("todos")
+      .update({ task })
+      .eq("id", id)
+      .select()
+      .single();
 
     if (error) throw error;
     return data;
@@ -130,5 +143,68 @@ export const todoApi = {
 
     if (error) throw error;
     return true;
+  },
+};
+
+// Task Groups API
+export const taskGroupsApi = {
+  // Create a new task group
+  async create(name, description = "") {
+    const { data, error } = await supabase
+      .from("task_groups")
+      .insert([{ name, description }])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  // Add items to a task group
+  async addItems(groupId, items) {
+    const { data, error } = await supabase
+      .from("task_group_items")
+      .insert(
+        items.map((item) => ({
+          group_id: groupId,
+          task: item.task,
+          hashtag: item.hashtag,
+        }))
+      )
+      .select();
+
+    if (error) throw error;
+    return data;
+  },
+
+  // Get all task groups
+  async getAll() {
+    const { data, error } = await supabase
+      .from("task_groups")
+      .select(
+        `
+        *,
+        items:task_group_items(*)
+      `
+      )
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+    return data;
+  },
+
+  // Add group tasks to todos
+  async addToTodos(groupId) {
+    const { data: items } = await supabase
+      .from("task_group_items")
+      .select("*")
+      .eq("group_id", groupId);
+
+    if (items) {
+      const promises = items.map((item) =>
+        todoApi.create(item.task, item.hashtag)
+      );
+      await Promise.all(promises);
+    }
   },
 };

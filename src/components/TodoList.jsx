@@ -1,14 +1,28 @@
 import { useState, useEffect, useCallback } from "react";
-import { Card, Checkbox, Tag, Empty, Typography, Row, Col, Button } from "antd";
-import { DeleteOutlined } from "@ant-design/icons";
+import {
+  Card,
+  Checkbox,
+  Tag,
+  Empty,
+  Typography,
+  Row,
+  Col,
+  Button,
+  Modal,
+  Input,
+} from "antd";
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import MobileHeader from "./MobileHeader";
 import { todoApi, subscribeToTodos } from "../lib/supabase";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 
 function TodoList() {
   const [tasks, setTasks] = useState([]);
+  const [editingTask, setEditingTask] = useState(null);
+  const [editedText, setEditedText] = useState("");
   const [showCompleted, setShowCompleted] = useState(false);
 
+  // FETCH Tasks
   const fetchTasks = useCallback(async () => {
     try {
       const data = await todoApi.getAll();
@@ -18,9 +32,9 @@ function TodoList() {
     }
   }, []);
 
+  // REAL-TIME UPDATES
   useEffect(() => {
     fetchTasks();
-
     // Subscribe to real-time updates
     const subscription = subscribeToTodos((payload) => {
       if (payload.eventType === "INSERT") {
@@ -44,22 +58,48 @@ function TodoList() {
     };
   }, []);
 
-  // Handle Completed Task
+  // HANDLE COMPLETED TASK
   const handleTaskComplete = async (taskId) => {
     try {
       const task = tasks.find((t) => t.id === taskId);
-      const updatedTask = await todoApi.toggleComplete(
-        taskId,
-        !task.is_completed
+
+      // Optimistically update UI
+      setTasks((current) =>
+        current.map((t) =>
+          t.id === taskId ? { ...t, is_completed: !t.is_completed } : t
+        )
       );
-      setTasks(tasks.map((t) => (t.id === taskId ? updatedTask : t)));
-      setTimeout(() => setTasks(tasks.filter((t) => t.id !== taskId)), 1500);
+
+      if (!task.is_completed) {
+        // Mark as completed
+        await todoApi.toggleComplete(taskId, true);
+      } else {
+        // Mark as uncompleted
+        await todoApi.toggleComplete(taskId, false);
+      }
+    } catch (error) {
+      console.error("Error updating task:", error);
+      // Revert optimistic update on error
+      setTasks((current) =>
+        current.map((t) =>
+          t.id === taskId ? { ...t, is_completed: !t.is_completed } : t
+        )
+      );
+    }
+  };
+
+  // HANDLE EDIT
+  const handleEdit = async () => {
+    try {
+      await todoApi.update(editingTask.id, editedText);
+      setEditingTask(null);
+      setEditedText("");
     } catch (error) {
       console.error("Error updating task:", error);
     }
   };
 
-  // Handle Delete
+  // HANDLE DELETE
   const handleDelete = async (taskId) => {
     try {
       await todoApi.delete(taskId);
@@ -69,7 +109,7 @@ function TodoList() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-4 px-4 md:mt-0">
+    <div className="max-w-2xl mx-auto space-y-4 md:mt-0">
       <div className="hidden md:flex items-center justify-center h-14">
         <h2 className="text-lg font-semibold">Today&apos;s Tasks</h2>
       </div>
@@ -92,6 +132,7 @@ function TodoList() {
                           onChange={() => handleTaskComplete(task.id)}
                           className="scale-125 mr-2"
                         />
+                        {console.log(task.is_completed)}
                         <Typography.Text
                           className="ml-2 break-words"
                           style={{ width: "100%" }}
@@ -100,27 +141,35 @@ function TodoList() {
                           {task.task}
                         </Typography.Text>
                       </div>
-                      {/* {task.hashtag && (
-                        <Tag color="blue" className="self-start ml-8 mt-1">
-                          #{task.hashtag}
-                        </Tag>
-                      )} */}
                       <div className="flex items-center justify-between gap-2 ml-8">
                         <div>
                           {task.hashtag && (
                             <Tag color="blue">#{task.hashtag}</Tag>
                           )}
                         </div>
-                        <Button
-                          type="text"
-                          icon={<DeleteOutlined />}
-                          size="small"
-                          className="text-red-400 hover:text-red-500"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDelete(task.id);
-                          }}
-                        />
+                        <div className="flex gap-2">
+                          <Button
+                            type="text"
+                            icon={<EditOutlined />}
+                            size="small"
+                            className="text-gray-400 hover:text-blue-500"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEditingTask(task);
+                              setEditedText(task.task);
+                            }}
+                          />
+                          <Button
+                            type="text"
+                            icon={<DeleteOutlined />}
+                            size="small"
+                            className="text-red-400 hover:text-red-500"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDelete(task.id);
+                            }}
+                          />
+                        </div>
                       </div>
                     </div>
                   </Card>
@@ -131,6 +180,22 @@ function TodoList() {
       ) : (
         <Empty description="No tasks yet" className="my-8" />
       )}
+
+      <Modal
+        title="Edit Task"
+        open={!!editingTask}
+        onOk={handleEdit}
+        onCancel={() => {
+          setEditingTask(null);
+          setEditedText("");
+        }}
+      >
+        <Input
+          value={editedText}
+          onChange={(e) => setEditedText(e.target.value)}
+          placeholder="Enter task"
+        />
+      </Modal>
     </div>
   );
 }
