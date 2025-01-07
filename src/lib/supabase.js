@@ -69,27 +69,33 @@ export const todoApi = {
 
   // Get statistics by hashtag
   async getStatistics() {
-    const { data: todos, error } = await supabase.from("todos").select("*");
+    const { data: todos, error } = await supabase
+      .from("todos")
+      .select("*")
+      .order("created_at", { ascending: false });
 
     if (error) throw error;
 
     const stats = todos.reduce((acc, todo) => {
-      if (!acc[todo.hashtag]) {
-        acc[todo.hashtag] = {
-          name: todo.hashtag,
+      const category = todo.hashtag || null;
+      const key = category || "uncategorized";
+
+      if (!acc[key]) {
+        acc[key] = {
+          name: category,
           totalTasks: 0,
           completedTasks: 0,
           completionRate: 0,
         };
       }
 
-      acc[todo.hashtag].totalTasks++;
+      acc[key].totalTasks++;
       if (todo.is_completed) {
-        acc[todo.hashtag].completedTasks++;
+        acc[key].completedTasks++;
       }
 
-      acc[todo.hashtag].completionRate = Math.round(
-        (acc[todo.hashtag].completedTasks / acc[todo.hashtag].totalTasks) * 100
+      acc[key].completionRate = Math.round(
+        (acc[key].completedTasks / acc[key].totalTasks) * 100
       );
 
       return acc;
@@ -97,7 +103,6 @@ export const todoApi = {
 
     return Object.values(stats);
   },
-
   // Get completion data for heatmap
   async getCompletionData() {
     const { data: todos, error } = await supabase

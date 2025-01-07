@@ -4,6 +4,7 @@ import {
   HomeOutlined,
   BarChartOutlined,
   SettingOutlined,
+  CheckCircleOutlined,
 } from "@ant-design/icons";
 
 function DesktopSidebar() {
@@ -20,6 +21,11 @@ function DesktopSidebar() {
       key: "/stats",
       icon: <BarChartOutlined />,
       label: "Statistics",
+    },
+    {
+      key: "/completed",
+      icon: <CheckCircleOutlined />,
+      label: "Completed",
     },
     {
       key: "/settings",

@@ -7,6 +7,11 @@ function MobileHeader({ title }) {
 
   const menuItems = [
     {
+      key: "completed",
+      label: "Completed Tasks",
+      onClick: () => navigate("/completed"),
+    },
+    {
       key: "settings",
       label: "Settings",
       onClick: () => navigate("/settings"),

@@ -24,3 +24,8 @@
   opacity: 0;
   transition: opacity 500ms ease-out;
 }
+
+/* React Calendar Heatmap CSS */
+.react-calendar-heatmap {
+  padding-left: 36px;
+}

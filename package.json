@@ -14,6 +14,7 @@
     "@supabase/supabase-js": "^2.47.10",
     "antd": "^5.23.0",
     "dayjs": "^1.11.13",
+    "dayjs-plugin-utc": "^0.1.2",
     "dotenv": "^16.4.7",
     "react": "^18.3.1",
     "react-calendar-heatmap": "^1.9.0",
