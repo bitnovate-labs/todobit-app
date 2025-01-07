@@ -16,3 +16,13 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+input,
+textarea,
+select {
+  font-size: 16px; /* Prevent zooming on iOS */
+}
+
+.ant-input {
+  font-size: 16px !important; /* Ensure it matches the mobile-friendly font size */
+}

@@ -1,3 +1,7 @@
+.ant-input {
+  font-size: 16px !important; /* Ensure it matches the mobile-friendly font size */
+}
+
 /* Custom styles that complement Tailwind */
 .color-empty {
   fill: #ebedf0;
