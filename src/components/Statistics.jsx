@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, Row, Col, Modal } from "antd";
 import CalendarHeatmap from "react-calendar-heatmap";
 import "react-calendar-heatmap/dist/styles.css";
+import dayjs from "dayjs";
 import MobileHeader from "./MobileHeader";
 import { todoApi } from "../lib/supabase";
 
@@ -33,15 +34,20 @@ function Statistics() {
       </div>
       <MobileHeader title="Activity Overview" />
 
-      <div className="bg-white rounded-lg p-4 mb-8 shadow-sm overflow-x-auto">
+      <div className="bg-white rounded-lg p-8 mb-8 shadow-sm overflow-x-auto">
+        <h3 className="text-lg font-semibold mb-6">Activity</h3>
         <CalendarHeatmap
-          startDate={new Date("2024-01-01")}
-          endDate={new Date("2024-12-31")}
+          startDate={dayjs().startOf("month").toDate()}
+          endDate={dayjs().endOf("month").toDate()}
           values={completionData}
+          showWeekdayLabels={true}
+          weekdayLabels={["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]}
           classForValue={(value) => {
             if (!value) return "color-empty";
             return `color-scale-${value.count}`;
           }}
+          gutterSize={3}
+          horizontal={false}
         />
       </div>
 
@@ -53,7 +59,7 @@ function Statistics() {
             <Col xs={24} sm={12} md={8} key={category.name}>
               <Card
                 hoverable
-                className="shadow-sm hover:shadow-md transition-shadow"
+                className="shadow-md hover:shadow-md transition-shadow"
                 onClick={() => setSelectedCategory(category)}
               >
                 <h4 className="text-lg font-medium mb-2">

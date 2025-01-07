@@ -22,5 +22,5 @@
 
 .task-exit-active {
   opacity: 0;
-  transition: opacity 1500ms ease-out;
+  transition: opacity 500ms ease-out;
 }

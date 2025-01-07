@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Modal, Input, Select, Button } from "antd";
+import { Modal, Input, AutoComplete, Button } from "antd";
 import {
   PlusOutlined,
   HomeOutlined,
@@ -15,9 +15,16 @@ function MobileNavigation() {
   const [newTask, setNewTask] = useState("");
   const [category, setCategory] = useState("");
 
+  const categoryOptions = [
+    { value: "work", label: "#work" },
+    { value: "personal", label: "#personal" },
+    { value: "health", label: "#health" },
+  ];
+
   const handleAddTask = async () => {
     try {
-      await todoApi.create(newTask, category);
+      const hashtag = category.startsWith("#") ? category.slice(1) : category;
+      await todoApi.create(newTask, hashtag);
       // Reset form
       setNewTask("");
       setCategory("");
@@ -67,16 +74,13 @@ function MobileNavigation() {
           onChange={(e) => setNewTask(e.target.value)}
           className="mb-4"
         />
-        <Select
+        <AutoComplete
           className="w-full"
-          placeholder="Select category"
+          placeholder="Enter or select category"
+          options={categoryOptions}
           value={category}
-          onChange={setCategory}
-          options={[
-            { value: "work", label: "#work" },
-            { value: "personal", label: "#personal" },
-            { value: "health", label: "#health" },
-          ]}
+          onChange={(value) => setCategory(value)}
+          allowClear
         />
       </Modal>
     </>

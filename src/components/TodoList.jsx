@@ -1,11 +1,13 @@
 import { useState, useEffect, useCallback } from "react";
-import { List, Checkbox, Tag, Empty, Typography } from "antd";
+import { Card, Checkbox, Tag, Empty, Typography, Row, Col, Button } from "antd";
+import { DeleteOutlined } from "@ant-design/icons";
 import MobileHeader from "./MobileHeader";
 import { todoApi, subscribeToTodos } from "../lib/supabase";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 
 function TodoList() {
   const [tasks, setTasks] = useState([]);
+  const [showCompleted, setShowCompleted] = useState(false);
 
   const fetchTasks = useCallback(async () => {
     try {
@@ -42,6 +44,7 @@ function TodoList() {
     };
   }, []);
 
+  // Handle Completed Task
   const handleTaskComplete = async (taskId) => {
     try {
       const task = tasks.find((t) => t.id === taskId);
@@ -56,36 +59,74 @@ function TodoList() {
     }
   };
 
+  // Handle Delete
+  const handleDelete = async (taskId) => {
+    try {
+      await todoApi.delete(taskId);
+    } catch (error) {
+      console.error("Error deleting task:", error);
+    }
+  };
+
   return (
     <div className="max-w-2xl mx-auto space-y-4 px-4 md:mt-0">
       <div className="hidden md:flex items-center justify-center h-14">
-        <h2 className="text-lg font-semibold">Today's Tasks</h2>
+        <h2 className="text-lg font-semibold">Today&apos;s Tasks</h2>
       </div>
       <MobileHeader title="Today's Tasks" />
       {tasks.length > 0 ? (
-        <TransitionGroup
-          component={List}
-          className="bg-white rounded-lg shadow-sm"
-        >
-          {tasks.map((task) => (
-            <CSSTransition key={task.id} timeout={1500} classNames="task">
-              <List.Item className="px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100 task-item">
-                <Checkbox
-                  checked={task.is_completed}
-                  onChange={() => handleTaskComplete(task.id)}
-                >
-                  <Typography.Text className="ml-2">
-                    {task.task}
-                  </Typography.Text>
-                </Checkbox>
-                {task.hashtag && (
-                  <Tag color="blue" className="ml-auto">
-                    #{task.hashtag}
-                  </Tag>
-                )}
-              </List.Item>
-            </CSSTransition>
-          ))}
+        <TransitionGroup component={Row} gutter={[10, 10]}>
+          {tasks
+            .filter((task) => !task.is_completed || showCompleted)
+            .map((task) => (
+              <CSSTransition key={task.id} timeout={1500} classNames="task">
+                <Col xs={24}>
+                  <Card
+                    hoverable
+                    className="shadow-md hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-start min-w-0">
+                        <Checkbox
+                          checked={task.is_completed}
+                          onChange={() => handleTaskComplete(task.id)}
+                          className="scale-125 mr-2"
+                        />
+                        <Typography.Text
+                          className="ml-2 break-words"
+                          style={{ width: "100%" }}
+                          delete={task.is_completed}
+                        >
+                          {task.task}
+                        </Typography.Text>
+                      </div>
+                      {/* {task.hashtag && (
+                        <Tag color="blue" className="self-start ml-8 mt-1">
+                          #{task.hashtag}
+                        </Tag>
+                      )} */}
+                      <div className="flex items-center justify-between gap-2 ml-8">
+                        <div>
+                          {task.hashtag && (
+                            <Tag color="blue">#{task.hashtag}</Tag>
+                          )}
+                        </div>
+                        <Button
+                          type="text"
+                          icon={<DeleteOutlined />}
+                          size="small"
+                          className="text-red-400 hover:text-red-500"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(task.id);
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </Card>
+                </Col>
+              </CSSTransition>
+            ))}
         </TransitionGroup>
       ) : (
         <Empty description="No tasks yet" className="my-8" />
