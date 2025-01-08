@@ -3,6 +3,7 @@ import { Drawer, List, Button, Modal, Typography } from "antd";
 import dayjs from "dayjs";
 import PropTypes from "prop-types";
 import { supabase } from "../lib/supabase";
+import { DeleteOutlined } from "@ant-design/icons";
 
 const { Text } = Typography;
 
@@ -169,11 +170,18 @@ function Heatmap({ data = [], hashtag, onDeleteCategory }) {
         placement="right"
         className="heatmap-drawer"
         open={drawerVisible}
+        style={{ padding: "10px 0" }}
         onClose={() => setDrawerVisible(false)}
         width="100%"
         footer={
           <div className="p-4">
-            <Button danger block onClick={() => setDeleteModalVisible(true)}>
+            <Button
+              danger
+              block
+              onClick={() => setDeleteModalVisible(true)}
+              icon={<DeleteOutlined />}
+              className="font-bold"
+            >
               Delete Category
             </Button>
           </div>
@@ -207,10 +215,10 @@ function Heatmap({ data = [], hashtag, onDeleteCategory }) {
         okText="Delete"
         cancelText="Cancel"
         okButtonProps={{ danger: true }}
-        style={{ top: "70%", textAlign: "center" }} // Adjust the top position
+        style={{ top: "70%" }} // Adjust the top position
       >
         <p>Are you sure you want to delete this category and all its tasks?</p>
-        <p className="text-gray-500 mt-2">This action cannot be undone.</p>
+        {/* <p className="text-gray-500 mt-2">This action cannot be undone.</p> */}
       </Modal>
     </div>
   );
