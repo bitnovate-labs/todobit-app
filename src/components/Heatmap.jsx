@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
-import { Drawer, List, Button, Popconfirm, Typography } from "antd";
+import { Drawer, List, Button, Modal, Typography } from "antd";
 import dayjs from "dayjs";
 import PropTypes from "prop-types";
 import { supabase } from "../lib/supabase";
@@ -21,6 +21,7 @@ function Heatmap({ data = [], hashtag, onDeleteCategory }) {
   const [selectedDate, setSelectedDate] = useState(null);
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [selectedDayTasks, setSelectedDayTasks] = useState([]);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
   const heatmapData = useMemo(() => {
     // Find the most active day for the category
@@ -172,21 +173,9 @@ function Heatmap({ data = [], hashtag, onDeleteCategory }) {
         width="100%"
         footer={
           <div className="p-4">
-            <Popconfirm
-              title="Delete Category"
-              description="Are you sure you want to delete this category and all its tasks?"
-              onConfirm={() => {
-                onDeleteCategory(hashtag);
-                setDrawerVisible(false);
-              }}
-              okText="Yes"
-              cancelText="No"
-              okButtonProps={{ danger: true }}
-            >
-              <Button danger block>
-                Delete Category
-              </Button>
-            </Popconfirm>
+            <Button danger block onClick={() => setDeleteModalVisible(true)}>
+              Delete Category
+            </Button>
           </div>
         }
       >
@@ -205,6 +194,24 @@ function Heatmap({ data = [], hashtag, onDeleteCategory }) {
           locale={{ emptyText: "No tasks for this day" }}
         />
       </Drawer>
+
+      <Modal
+        title="Delete Category"
+        open={deleteModalVisible}
+        onOk={() => {
+          onDeleteCategory(hashtag);
+          setDeleteModalVisible(false);
+          setDrawerVisible(false);
+        }}
+        onCancel={() => setDeleteModalVisible(false)}
+        okText="Delete"
+        cancelText="Cancel"
+        okButtonProps={{ danger: true }}
+        style={{ top: "70%", textAlign: "center" }} // Adjust the top position
+      >
+        <p>Are you sure you want to delete this category and all its tasks?</p>
+        <p className="text-gray-500 mt-2">This action cannot be undone.</p>
+      </Modal>
     </div>
   );
 }
