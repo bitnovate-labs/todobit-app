@@ -42,7 +42,7 @@ function Statistics() {
       <div className="hidden md:flex items-center justify-center h-14">
         <h2 className="text-lg font-semibold">Habit Tracking</h2>
       </div>
-      <MobileHeader title="Habit Tracking" />
+      <MobileHeader title="Statistics" />
 
       {loading ? (
         <div className="flex justify-center py-8">

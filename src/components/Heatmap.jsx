@@ -57,7 +57,7 @@ function Heatmap({ data = [], hashtag }) {
   };
 
   return (
-    <div className="w-full bg-white rounded-lg p-6 shadow-sm">
+    <div className="w-full bg-white rounded-2xl p-6 shadow-md">
       <h3 className="text-lg font-semibold mb-4">#{hashtag}</h3>
       <div className="overflow-hidden">
         <div className="flex gap-2 overflow-x-auto pb-2">

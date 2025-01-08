@@ -9,7 +9,7 @@ function Settings() {
       </div>
       <MobileHeader title="Settings" />
       <List
-        className="bg-white rounded-lg shadow-sm p-4"
+        className="bg-white rounded-2xl shadow-md p-4"
         itemLayout="horizontal"
         dataSource={[
           {

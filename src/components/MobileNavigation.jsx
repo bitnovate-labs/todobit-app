@@ -87,98 +87,100 @@ function MobileNavigation() {
 
   return (
     <>
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 h-24 flex items-center justify-around px-4 md:hidden shadow-xl">
-        {/* HOME BUTTON */}
-        <div className="flex-1 flex justify-center">
-          <Button
-            type="ghost"
-            className={`flex items-center justify-center flex-col ${
-              location.pathname === "/"
-                ? "text-blue-500 border-none"
-                : "text-gray-500"
-            } focus:outline-none`}
-            icon={<HomeOutlined style={{ fontSize: "24px" }} />}
-            onClick={() => navigate("/")}
-            style={{
-              marginLeft: "12px",
-              padding: "38px 10px",
-            }}
-          >
-            Home
-          </Button>
-        </div>
-        <div className="flex-1" /> {/* Spacer */}
-        {/* TASK GROUP BUTTON */}
-        <div className="flex-1 flex justify-center">
-          <Button
-            type="ghost"
-            className={`flex items-center justify-center flex-col ${
-              location.pathname === "/groups"
-                ? "text-blue-500 border-none"
-                : "text-gray-500"
-            } focus:outline-none`}
-            icon={<FolderOutlined style={{ fontSize: "24px" }} />}
-            onClick={() => navigate("/groups")}
-            style={{
-              padding: "38px 10px",
-            }}
-          >
-            Groups
-          </Button>
-        </div>
-        <div className="flex-1" /> {/* Spacer */}
-        {/* ADD TASK BUTTON */}
-        <div className="flex-1 flex justify-center">
-          <Button
-            type="primary"
-            shape="circle"
-            icon={<PlusOutlined />}
-            onClick={() => setIsModalVisible(true)}
-            style={{
-              fontSize: "18px",
-              padding: "24px 24px",
-            }}
-            className="flex items-center justify-center"
-          />
-        </div>
-        <div className="flex-1" /> {/* Spacer */}
-        {/* STATISTICS BUTTON */}
-        <div className="flex-1 flex justify-center">
-          <Button
-            type="ghost"
-            className={`flex items-center justify-center flex-col ${
-              location.pathname === "/stats"
-                ? "text-blue-500 border-none"
-                : "text-gray-500"
-            } focus:outline-none`}
-            icon={<BarChartOutlined style={{ fontSize: "24px" }} />}
-            onClick={() => navigate("/stats")}
-            style={{
-              padding: "38px 14px",
-            }}
-          >
-            Stats
-          </Button>
-        </div>
-        <div className="flex-1" /> {/* Spacer */}
-        {/* SETTINGS BUTTON */}
-        <div className="flex-1 flex justify-center">
-          <Button
-            type="ghost"
-            className={`flex items-center justify-center flex-col ${
-              location.pathname === "/settings"
-                ? "text-blue-500 border-none"
-                : "text-gray-500"
-            } focus:outline-none`}
-            icon={<SettingOutlined style={{ fontSize: "24px" }} />}
-            onClick={() => navigate("/settings")}
-            style={{
-              marginRight: "12px",
-              padding: "38px 10px",
-            }}
-          >
-            Settings
-          </Button>
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 h-28 md:hidden z-50 px-4">
+        <div className="relative max-w-md mx-auto h-full">
+          <div className="absolute inset-x-0 h-full grid grid-cols-5 items-center">
+            <div className="flex flex-col items-center">
+              <Button
+                className={`flex items-center justify-center border-none ${
+                  location.pathname === "/" ? "text-blue-500" : "text-gray-500"
+                } focus:outline-none`}
+                icon={<HomeOutlined style={{ fontSize: "24px" }} />}
+                onClick={() => navigate("/")}
+              />
+              <span
+                className={`text-xs mt-1 ${
+                  location.pathname === "/" ? "text-blue-500" : "text-gray-500"
+                }`}
+              >
+                Home
+              </span>
+            </div>
+            <div className="flex flex-col items-center">
+              <Button
+                className={`flex items-center justify-center border-none ${
+                  location.pathname === "/groups"
+                    ? "text-blue-500"
+                    : "text-gray-500"
+                } focus:outline-none`}
+                icon={<FolderOutlined style={{ fontSize: "24px" }} />}
+                onClick={() => navigate("/groups")}
+              />
+              <span
+                className={`text-xs mt-1 ${
+                  location.pathname === "/groups"
+                    ? "text-blue-500"
+                    : "text-gray-500"
+                }`}
+              >
+                Groups
+              </span>
+            </div>
+            {/* ADD TASK BUTTON */}
+            <div className="flex justify-center items-center">
+              <Button
+                type="primary"
+                shape="circle"
+                icon={<PlusOutlined style={{ fontSize: "24px" }} />}
+                onClick={() => setIsModalVisible(true)}
+                size="large"
+                className="flex items-center justify-center focus:outline-none shadow-lg"
+                style={{
+                  padding: "30px",
+                }}
+              />
+            </div>
+            <div className="flex flex-col items-center">
+              <Button
+                className={`flex items-center justify-center border-none ${
+                  location.pathname === "/stats"
+                    ? "text-blue-500"
+                    : "text-gray-500"
+                } focus:outline-none`}
+                icon={<BarChartOutlined style={{ fontSize: "24px" }} />}
+                onClick={() => navigate("/stats")}
+              />
+              <span
+                className={`text-xs mt-1 ${
+                  location.pathname === "/stats"
+                    ? "text-blue-500"
+                    : "text-gray-500"
+                }`}
+              >
+                Stats
+              </span>
+            </div>
+            <div className="flex flex-col items-center">
+              <Button
+                className={`flex items-center justify-center border-none ${
+                  location.pathname === "/settings"
+                    ? "text-blue-500"
+                    : "text-gray-500"
+                } focus:outline-none`}
+                icon={<SettingOutlined style={{ fontSize: "24px" }} />}
+                onClick={() => navigate("/settings")}
+              />
+              <span
+                className={`text-xs mt-1 ${
+                  location.pathname === "/settings"
+                    ? "text-blue-500"
+                    : "text-gray-500"
+                }`}
+              >
+                Settings
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 

@@ -101,7 +101,7 @@ function TaskGroups() {
                     Add
                   </Button>
                 }
-                className="shadow-sm hover:shadow-md transition-shadow"
+                className="shadow-md hover:shadow-md transition-shadow"
               >
                 {group.description && (
                   <Text type="secondary" className="block mb-4">
@@ -125,7 +125,7 @@ function TaskGroups() {
       ) : (
         <Empty
           description="No task groups yet"
-          className="bg-white p-8 rounded-lg shadow-sm"
+          className="bg-white p-8 rounded-2xl shadow-md"
         />
       )}
 

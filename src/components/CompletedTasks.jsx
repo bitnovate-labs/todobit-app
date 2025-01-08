@@ -57,7 +57,7 @@ function CompletedTasks() {
           dataSource={tasks}
           renderItem={(task) => (
             <List.Item>
-              <Card className="w-full shadow-sm hover:shadow-md transition-shadow">
+              <Card className="w-full shadow-md hover:shadow-md transition-shadow">
                 <div className="space-y-3">
                   <Text className="text-lg">{task.task}</Text>
                   <div className="flex items-center justify-between">
@@ -86,7 +86,7 @@ function CompletedTasks() {
       ) : (
         <Empty
           description="No completed tasks yet"
-          className="bg-white p-8 rounded-lg shadow-sm"
+          className="bg-white p-8 rounded-2xl shadow-md"
         />
       )}
     </div>
