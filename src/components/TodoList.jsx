@@ -21,6 +21,7 @@ function TodoList() {
   const [tasks, setTasks] = useState([]);
   const [editingTask, setEditingTask] = useState(null);
   const [editedText, setEditedText] = useState("");
+  const [editedHashtag, setEditedHashtag] = useState("");
   const [showCompleted, setShowCompleted] = useState(false);
   const [lastCheckDate, setLastCheckDate] = useState(
     dayjs().format("YYYY-MM-DD")
@@ -28,9 +29,10 @@ function TodoList() {
 
   const handleEdit = async () => {
     try {
-      await todoApi.update(editingTask.id, editedText);
+      await todoApi.update(editingTask.id, editedText, editedHashtag);
       setEditingTask(null);
       setEditedText("");
+      setEditedHashtag("");
     } catch (error) {
       console.error("Error updating task:", error);
     }
@@ -132,7 +134,12 @@ function TodoList() {
       <div className="hidden md:flex items-center justify-center h-14">
         <h2 className="text-lg font-semibold">Today&apos;s Tasks</h2>
       </div>
-      <MobileHeader title="Today's Tasks" />
+      <div>
+        <MobileHeader title="Today's Tasks" />
+        <p className="text-center text-gray-500">
+          {tasks.filter((task) => !task.is_completed).length} tasks remaining
+        </p>
+      </div>
       {tasks.length > 0 ? (
         <TransitionGroup component={Row} gutter={[16, 16]}>
           {tasks
@@ -142,9 +149,9 @@ function TodoList() {
                 <Col xs={24}>
                   <Card
                     hoverable
-                    className="shadow-sm hover:shadow-md transition-shadow"
+                    className="shadow-md hover:shadow-md transition-shadow"
                   >
-                    <div className="flex flex-col gap-2">
+                    <div className="flex justify-between gap-2">
                       <div className="flex items-start min-w-0">
                         <Checkbox
                           checked={task.is_completed}
@@ -160,11 +167,7 @@ function TodoList() {
                         </Typography.Text>
                       </div>
                       <div className="flex items-center justify-between ml-8">
-                        <div>
-                          {task.hashtag && (
-                            <Tag color="blue">#{task.hashtag}</Tag>
-                          )}
-                        </div>
+                        <div></div>
                         <div className="flex gap-2">
                           <Button
                             type="text"
@@ -175,13 +178,14 @@ function TodoList() {
                               e.stopPropagation();
                               setEditingTask(task);
                               setEditedText(task.task);
+                              setEditedHashtag(task.hashtag || "");
                             }}
                           />
                           <Button
                             type="text"
                             icon={<DeleteOutlined />}
                             size="small"
-                            className="text-red-400 hover:text-red-500"
+                            className="text-gray-400 hover:text-red-500"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleDelete(task.id);
@@ -206,13 +210,22 @@ function TodoList() {
         onCancel={() => {
           setEditingTask(null);
           setEditedText("");
+          setEditedHashtag("");
         }}
       >
-        <Input
-          value={editedText}
-          onChange={(e) => setEditedText(e.target.value)}
-          placeholder="Enter task"
-        />
+        <div className="space-y-4">
+          <Input
+            value={editedText}
+            onChange={(e) => setEditedText(e.target.value)}
+            placeholder="Enter task"
+          />
+          <Input
+            value={editedHashtag}
+            onChange={(e) => setEditedHashtag(e.target.value)}
+            placeholder="Category (optional)"
+            prefix="#"
+          />
+        </div>
       </Modal>
     </div>
   );

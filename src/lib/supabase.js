@@ -76,10 +76,10 @@ export const todoApi = {
   },
 
   // Update todo text
-  async update(id, task) {
+  async update(id, task, hashtag) {
     const { data, error } = await supabase
       .from("todos")
-      .update({ task })
+      .update({ task, hashtag })
       .eq("id", id)
       .select()
       .single();
