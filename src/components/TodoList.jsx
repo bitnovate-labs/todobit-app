@@ -22,7 +22,7 @@ function TodoList() {
   const [editedText, setEditedText] = useState("");
   const [showCompleted, setShowCompleted] = useState(false);
 
-  // FETCH Tasks
+  // FETCH TASKS
   const fetchTasks = useCallback(async () => {
     try {
       const data = await todoApi.getAll();
@@ -35,6 +35,7 @@ function TodoList() {
   // REAL-TIME UPDATES
   useEffect(() => {
     fetchTasks();
+
     // Subscribe to real-time updates
     const subscription = subscribeToTodos((payload) => {
       if (payload.eventType === "INSERT") {
@@ -114,6 +115,57 @@ function TodoList() {
         <h2 className="text-lg font-semibold">Today&apos;s Tasks</h2>
       </div>
       <MobileHeader title="Today's Tasks" />
+
+      {/* Task Groups Section */}
+      {/* {groups.length > 0 && (
+        <div className="mb-6">
+          {groups.map(
+            (group) =>
+              group.items.some((item) => !item.is_completed) && (
+                <Card
+                  key={group.id}
+                  className="mb-4 shadow-sm hover:shadow-md transition-shadow"
+                  title={group.name}
+                >
+                  <Collapse bordered={false} className="-mx-6 -mb-6">
+                    <Collapse.Panel
+                      key="tasks"
+                      header="View Tasks"
+                      className="border-t border-gray-200"
+                    >
+                      <div className="space-y-2 pt-2">
+                        {group.items
+                          .filter((item) => !item.is_completed)
+                          .map((item) => (
+                            <div
+                              key={item.id}
+                              className="flex items-center justify-between"
+                            >
+                              <Checkbox
+                                className="flex-1"
+                                checked={false}
+                                onChange={() =>
+                                  handleTaskComplete(item.id, group.id)
+                                }
+                              >
+                                <span>{item.task}</span>
+                              </Checkbox>
+                              <div className="ml-2">
+                                {item.hashtag && (
+                                  <Tag color="blue">#{item.hashtag}</Tag>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                      </div>
+                    </Collapse.Panel>
+                  </Collapse>
+                </Card>
+              )
+          )}
+        </div>
+      )} */}
+
       {tasks.length > 0 ? (
         <TransitionGroup component={Row} gutter={[10, 10]}>
           {tasks
@@ -132,7 +184,6 @@ function TodoList() {
                           onChange={() => handleTaskComplete(task.id)}
                           className="scale-125 mr-2"
                         />
-                        {console.log(task.is_completed)}
                         <Typography.Text
                           className="ml-2 break-words"
                           style={{ width: "100%" }}

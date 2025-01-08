@@ -16,14 +16,15 @@ const { Text } = Typography;
 function CompletedTasks() {
   const [tasks, setTasks] = useState([]);
 
+  // FETCH ALL COMPLETED TASKS
   useEffect(() => {
     const fetchCompletedTasks = async () => {
       try {
         const { data } = await supabase
           .from("todos")
-          .select("id, task, hashtag, created_at")
+          .select("id, task, hashtag, created_at, completed_at")
           .eq("is_completed", true)
-          .order("created_at", { ascending: false });
+          .order("completed_at", { ascending: false });
         setTasks(data || []);
       } catch (error) {
         console.error("Error fetching completed tasks:", error);
@@ -33,6 +34,7 @@ function CompletedTasks() {
     fetchCompletedTasks();
   }, []);
 
+  // HANDLE DELETE
   const handleDelete = async (taskId) => {
     try {
       await supabase.from("todos").delete().eq("id", taskId);
@@ -62,12 +64,12 @@ function CompletedTasks() {
                     <Text type="secondary" className="text-sm">
                       Completed{" "}
                       {dayjs
-                        .utc(task.created_at)
+                        .utc(task.completed_at)
                         .local()
                         .format("MMM D, YYYY h:mm A")}
                     </Text>
-                    <div>
-                      {task.hashtag && <Tag color="blue">#{task.hashtag}</Tag>}
+                    <div className="flex justify-start">
+                      {/* {task.hashtag && <Tag color="blue">#{task.hashtag}</Tag>} */}
                       <Button
                         type="text"
                         icon={<DeleteOutlined />}

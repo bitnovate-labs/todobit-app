@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import dayjs from "dayjs";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -17,7 +18,7 @@ export const subscribeToTodos = (callback) => {
     .subscribe();
 };
 
-// CRUD operations
+// Todo CRUD operations
 export const todoApi = {
   // Create a new todo
   async create(task, hashtag) {
@@ -71,7 +72,10 @@ export const todoApi = {
   async toggleComplete(id, isCompleted) {
     const { data, error } = await supabase
       .from("todos")
-      .update({ is_completed: isCompleted })
+      .update({
+        is_completed: isCompleted,
+        completed_at: isCompleted ? new Date().toISOString() : null,
+      })
       .eq("id", id)
       .select()
       .single();
@@ -116,25 +120,43 @@ export const todoApi = {
 
     return Object.values(stats);
   },
+
   // Get completion data for heatmap
-  async getCompletionData() {
-    const { data: todos, error } = await supabase
+  async getCompletionData(hashtag = null) {
+    const startDate = dayjs()
+      .subtract(52, "weeks")
+      .startOf("week")
+      .toISOString();
+    const endDate = dayjs().endOf("week").toISOString();
+
+    let query = supabase
       .from("todos")
       .select("*")
-      .eq("is_completed", true);
+      .eq("is_completed", true)
+      .gte("completed_at", startDate)
+      .lte("completed_at", endDate);
+
+    if (hashtag) {
+      query = query.eq("hashtag", hashtag);
+    }
+
+    const { data: todos, error } = await query;
 
     if (error) throw error;
 
+    // Fill in completed tasks
     const completionMap = todos.reduce((acc, todo) => {
-      const date = todo.created_at.split("T")[0];
+      const date = dayjs(todo.completed_at).format("YYYY-MM-DD");
       acc[date] = (acc[date] || 0) + 1;
       return acc;
     }, {});
 
-    return Object.entries(completionMap).map(([date, count]) => ({
-      date,
-      count: Math.min(count, 4), // Cap at 4 for heatmap scale
-    }));
+    return Object.entries(completionMap)
+      .sort()
+      .map(([date, count]) => ({
+        date,
+        count: Math.min(count, 4), // Cap at 4 for heatmap scale
+      }));
   },
 
   // Delete a todo

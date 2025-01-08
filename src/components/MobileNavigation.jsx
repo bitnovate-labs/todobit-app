@@ -92,38 +92,43 @@ function MobileNavigation() {
         <div className="flex-1 flex justify-center">
           <Button
             type="ghost"
-            className={`flex items-center justify-center ${
+            className={`flex items-center justify-center flex-col ${
               location.pathname === "/"
                 ? "text-blue-500 border-none"
                 : "text-gray-500"
             } focus:outline-none`}
-            icon={<HomeOutlined style={{ fontSize: "26px" }} />}
+            icon={<HomeOutlined style={{ fontSize: "24px" }} />}
             onClick={() => navigate("/")}
             style={{
-              paddingLeft: "16px",
+              marginLeft: "12px",
+              padding: "38px 10px",
             }}
-          />
+          >
+            Home
+          </Button>
         </div>
         <div className="flex-1" /> {/* Spacer */}
         {/* TASK GROUP BUTTON */}
-        <div className="flex-1 flex justify-center m-0">
+        <div className="flex-1 flex justify-center">
           <Button
             type="ghost"
-            className={`flex items-center justify-center ${
+            className={`flex items-center justify-center flex-col ${
               location.pathname === "/groups"
                 ? "text-blue-500 border-none"
                 : "text-gray-500"
             } focus:outline-none`}
-            icon={<FolderOutlined style={{ fontSize: "30px" }} />}
+            icon={<FolderOutlined style={{ fontSize: "24px" }} />}
             onClick={() => navigate("/groups")}
             style={{
-              padding: "0 20px",
+              padding: "38px 10px",
             }}
-          />
+          >
+            Groups
+          </Button>
         </div>
         <div className="flex-1" /> {/* Spacer */}
         {/* ADD TASK BUTTON */}
-        <div className="flex-1 flex justify-center m-0">
+        <div className="flex-1 flex justify-center">
           <Button
             type="primary"
             shape="circle"
@@ -141,34 +146,39 @@ function MobileNavigation() {
         <div className="flex-1 flex justify-center">
           <Button
             type="ghost"
-            className={`flex items-center justify-center ${
+            className={`flex items-center justify-center flex-col ${
               location.pathname === "/stats"
                 ? "text-blue-500 border-none"
                 : "text-gray-500"
             } focus:outline-none`}
-            icon={<BarChartOutlined style={{ fontSize: "30px" }} />}
+            icon={<BarChartOutlined style={{ fontSize: "24px" }} />}
             onClick={() => navigate("/stats")}
             style={{
-              padding: "0 20px",
+              padding: "38px 14px",
             }}
-          />
+          >
+            Stats
+          </Button>
         </div>
         <div className="flex-1" /> {/* Spacer */}
         {/* SETTINGS BUTTON */}
         <div className="flex-1 flex justify-center">
           <Button
             type="ghost"
-            className={`flex items-center justify-center ${
+            className={`flex items-center justify-center flex-col ${
               location.pathname === "/settings"
                 ? "text-blue-500 border-none"
                 : "text-gray-500"
             } focus:outline-none`}
-            icon={<SettingOutlined style={{ fontSize: "30px" }} />}
+            icon={<SettingOutlined style={{ fontSize: "24px" }} />}
             onClick={() => navigate("/settings")}
             style={{
-              paddingRight: "16px",
+              marginRight: "12px",
+              padding: "38px 10px",
             }}
-          />
+          >
+            Settings
+          </Button>
         </div>
       </div>
 
