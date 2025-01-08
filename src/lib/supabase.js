@@ -43,6 +43,26 @@ export const todoApi = {
     return data;
   },
 
+  // Archive completed tasks and clear todo list
+  async archiveAndClear() {
+    try {
+      // First move completed tasks to completed_todos
+      await supabase.rpc("archive_completed_todos");
+
+      // Then delete all todos
+      const { error } = await supabase
+        .from("todos")
+        .delete()
+        .not("id", "is", null);
+
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error("Error archiving and clearing todos:", error);
+      throw error;
+    }
+  },
+
   // Get todos by hashtag
   async getByHashtag(hashtag) {
     const { data, error } = await supabase

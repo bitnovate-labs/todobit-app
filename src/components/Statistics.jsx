@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { Spin } from "antd";
-import dayjs from "dayjs";
+import { Spin, message } from "antd";
 import MobileHeader from "./MobileHeader";
 import Heatmap from "./Heatmap";
 import { todoApi, supabase } from "../lib/supabase";
@@ -9,6 +8,30 @@ function Statistics() {
   const [loading, setLoading] = useState(true);
   const [categoryStats, setCategoryStats] = useState([]);
   const [heatmapData, setHeatmapData] = useState({});
+
+  const handleDeleteCategory = async (hashtag) => {
+    try {
+      const { error } = await supabase
+        .from("todos")
+        .delete()
+        .eq("hashtag", hashtag);
+
+      if (error) throw error;
+
+      // Update local state
+      setCategoryStats((prev) => prev.filter((stat) => stat.name !== hashtag));
+      setHeatmapData((prev) => {
+        const newData = { ...prev };
+        delete newData[hashtag];
+        return newData;
+      });
+
+      message.success(`Category #${hashtag} deleted successfully`);
+    } catch (error) {
+      console.error("Error deleting category:", error);
+      message.error("Failed to delete category");
+    }
+  };
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -42,7 +65,7 @@ function Statistics() {
       <div className="hidden md:flex items-center justify-center h-14">
         <h2 className="text-lg font-semibold">Habit Tracking</h2>
       </div>
-      <MobileHeader title="Statistics" />
+      <MobileHeader title="Habit Tracking" />
 
       {loading ? (
         <div className="flex justify-center py-8">
@@ -55,6 +78,7 @@ function Statistics() {
               key={category.name}
               data={heatmapData[category.name] || []}
               hashtag={category.name}
+              onDeleteCategory={handleDeleteCategory}
             />
           ))}
         </div>

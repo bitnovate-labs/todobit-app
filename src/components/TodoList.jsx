@@ -12,6 +12,7 @@ import {
   Input,
 } from "antd";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import dayjs from "dayjs";
 import MobileHeader from "./MobileHeader";
 import { todoApi, subscribeToTodos } from "../lib/supabase";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
@@ -21,8 +22,20 @@ function TodoList() {
   const [editingTask, setEditingTask] = useState(null);
   const [editedText, setEditedText] = useState("");
   const [showCompleted, setShowCompleted] = useState(false);
+  const [lastCheckDate, setLastCheckDate] = useState(
+    dayjs().format("YYYY-MM-DD")
+  );
 
-  // FETCH TASKS
+  const handleEdit = async () => {
+    try {
+      await todoApi.update(editingTask.id, editedText);
+      setEditingTask(null);
+      setEditedText("");
+    } catch (error) {
+      console.error("Error updating task:", error);
+    }
+  };
+
   const fetchTasks = useCallback(async () => {
     try {
       const data = await todoApi.getAll();
@@ -32,7 +45,26 @@ function TodoList() {
     }
   }, []);
 
-  // REAL-TIME UPDATES
+  // Check for date change and clear todos at midnight
+  useEffect(() => {
+    const checkDateChange = async () => {
+      const currentDate = dayjs().format("YYYY-MM-DD");
+      if (currentDate !== lastCheckDate) {
+        try {
+          await todoApi.archiveAndClear();
+          setLastCheckDate(currentDate);
+          await fetchTasks(); // Refresh the task list
+        } catch (error) {
+          console.error("Error clearing todos at midnight:", error);
+        }
+      }
+    };
+
+    // Check every minute
+    const interval = setInterval(checkDateChange, 60000);
+    return () => clearInterval(interval);
+  }, [lastCheckDate, fetchTasks]);
+
   useEffect(() => {
     fetchTasks();
 
@@ -57,13 +89,11 @@ function TodoList() {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [fetchTasks]);
 
-  // HANDLE COMPLETED TASK
   const handleTaskComplete = async (taskId) => {
     try {
       const task = tasks.find((t) => t.id === taskId);
-
       // Optimistically update UI
       setTasks((current) =>
         current.map((t) =>
@@ -89,18 +119,6 @@ function TodoList() {
     }
   };
 
-  // HANDLE EDIT
-  const handleEdit = async () => {
-    try {
-      await todoApi.update(editingTask.id, editedText);
-      setEditingTask(null);
-      setEditedText("");
-    } catch (error) {
-      console.error("Error updating task:", error);
-    }
-  };
-
-  // HANDLE DELETE
   const handleDelete = async (taskId) => {
     try {
       await todoApi.delete(taskId);
@@ -115,59 +133,8 @@ function TodoList() {
         <h2 className="text-lg font-semibold">Today&apos;s Tasks</h2>
       </div>
       <MobileHeader title="Today's Tasks" />
-
-      {/* Task Groups Section */}
-      {/* {groups.length > 0 && (
-        <div className="mb-6">
-          {groups.map(
-            (group) =>
-              group.items.some((item) => !item.is_completed) && (
-                <Card
-                  key={group.id}
-                  className="mb-4 shadow-sm hover:shadow-md transition-shadow"
-                  title={group.name}
-                >
-                  <Collapse bordered={false} className="-mx-6 -mb-6">
-                    <Collapse.Panel
-                      key="tasks"
-                      header="View Tasks"
-                      className="border-t border-gray-200"
-                    >
-                      <div className="space-y-2 pt-2">
-                        {group.items
-                          .filter((item) => !item.is_completed)
-                          .map((item) => (
-                            <div
-                              key={item.id}
-                              className="flex items-center justify-between"
-                            >
-                              <Checkbox
-                                className="flex-1"
-                                checked={false}
-                                onChange={() =>
-                                  handleTaskComplete(item.id, group.id)
-                                }
-                              >
-                                <span>{item.task}</span>
-                              </Checkbox>
-                              <div className="ml-2">
-                                {item.hashtag && (
-                                  <Tag color="blue">#{item.hashtag}</Tag>
-                                )}
-                              </div>
-                            </div>
-                          ))}
-                      </div>
-                    </Collapse.Panel>
-                  </Collapse>
-                </Card>
-              )
-          )}
-        </div>
-      )} */}
-
       {tasks.length > 0 ? (
-        <TransitionGroup component={Row} gutter={[10, 10]}>
+        <TransitionGroup component={Row} gutter={[16, 16]}>
           {tasks
             .filter((task) => !task.is_completed || showCompleted)
             .map((task) => (
@@ -175,24 +142,24 @@ function TodoList() {
                 <Col xs={24}>
                   <Card
                     hoverable
-                    className="shadow-md hover:shadow-md transition-shadow"
+                    className="shadow-sm hover:shadow-md transition-shadow"
                   >
                     <div className="flex flex-col gap-2">
                       <div className="flex items-start min-w-0">
                         <Checkbox
                           checked={task.is_completed}
                           onChange={() => handleTaskComplete(task.id)}
-                          className="scale-125 mr-2"
+                          className="scale-125"
                         />
                         <Typography.Text
-                          className="ml-2 break-words"
+                          className="ml-4 break-words"
                           style={{ width: "100%" }}
                           delete={task.is_completed}
                         >
                           {task.task}
                         </Typography.Text>
                       </div>
-                      <div className="flex items-center justify-between gap-2 ml-8">
+                      <div className="flex items-center justify-between ml-8">
                         <div>
                           {task.hashtag && (
                             <Tag color="blue">#{task.hashtag}</Tag>
