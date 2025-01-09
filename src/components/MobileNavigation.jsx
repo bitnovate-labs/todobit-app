@@ -1,14 +1,24 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Modal, Input, AutoComplete, Button, Divider, Typography } from "antd";
 import {
-  PlusOutlined,
-  HomeOutlined,
-  BarChartOutlined,
-  FolderOutlined,
-  SettingOutlined,
-} from "@ant-design/icons";
+  Modal,
+  Input,
+  AutoComplete,
+  Button,
+  Divider,
+  Typography,
+  Switch,
+} from "antd";
 import { todoApi, supabase } from "../lib/supabase";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faPlus,
+  faHome,
+  faChartBar,
+  faGear,
+  faStar,
+  faLayerGroup,
+} from "@fortawesome/free-solid-svg-icons";
 
 const { Text } = Typography;
 
@@ -18,6 +28,8 @@ function MobileNavigation() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [newTask, setNewTask] = useState("");
   const [category, setCategory] = useState("");
+  const [isPriority, setIsPriority] = useState(false);
+  const [tasks, setTasks] = useState([]);
   const [defaultCategories] = useState([
     { value: "work", label: "#work", description: "Work-related tasks" },
     {
@@ -42,6 +54,14 @@ function MobileNavigation() {
 
   useEffect(() => {
     const fetchCategories = async () => {
+      // Fetch tasks to check priority count
+      const { data: tasksData } = await supabase
+        .from("todos")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      setTasks(tasksData || []);
+
       try {
         const { data } = await supabase
           .from("todos")
@@ -73,12 +93,31 @@ function MobileNavigation() {
   // HANDLE ADD TASK
   const handleAddTask = async () => {
     try {
+      // Check priority task limit
+      if (isPriority) {
+        const priorityTaskCount = tasks.filter(
+          (task) => !task.is_completed && task.is_priority
+        ).length;
+
+        if (priorityTaskCount >= 3) {
+          Modal.warning({
+            title: "Priority Task Limit Reached",
+            content:
+              "You can only have 3 priority tasks at a time. Please complete or delete an existing priority task first.",
+            okText: "Got it",
+            style: { top: "35%" },
+          });
+          return;
+        }
+      }
+
       const hashtag = category.startsWith("#") ? category.slice(1) : category;
-      await todoApi.create(newTask, hashtag);
+      await todoApi.create(newTask, hashtag, isPriority);
 
       // Reset form
       setNewTask("");
       setCategory("");
+      setIsPriority(false);
       setIsModalVisible(false);
     } catch (error) {
       console.error("Error adding task:", error);
@@ -91,21 +130,18 @@ function MobileNavigation() {
         <div className="relative max-w-md mx-auto h-full">
           <div className="absolute inset-x-0 h-full grid grid-cols-5 items-center">
             <div className="flex flex-col items-center">
+              {/* HOME BUTTON */}
               <Button
                 className={`flex items-center justify-center border-none ${
                   location.pathname === "/" ? "text-blue-500" : "text-gray-500"
                 } focus:outline-none`}
-                icon={<HomeOutlined style={{ fontSize: "24px" }} />}
+                icon={
+                  <FontAwesomeIcon icon={faHome} style={{ fontSize: "26px" }} />
+                }
                 onClick={() => navigate("/")}
               />
-              <span
-                className={`text-xs mt-1 ${
-                  location.pathname === "/" ? "text-blue-500" : "text-gray-500"
-                }`}
-              >
-                Home
-              </span>
             </div>
+            {/* TASK GROUP BUTTON */}
             <div className="flex flex-col items-center">
               <Button
                 className={`flex items-center justify-center border-none ${
@@ -113,25 +149,23 @@ function MobileNavigation() {
                     ? "text-blue-500"
                     : "text-gray-500"
                 } focus:outline-none`}
-                icon={<FolderOutlined style={{ fontSize: "24px" }} />}
+                icon={
+                  <FontAwesomeIcon
+                    icon={faLayerGroup}
+                    style={{ fontSize: "26px" }}
+                  />
+                }
                 onClick={() => navigate("/groups")}
               />
-              <span
-                className={`text-xs mt-1 ${
-                  location.pathname === "/groups"
-                    ? "text-blue-500"
-                    : "text-gray-500"
-                }`}
-              >
-                Groups
-              </span>
             </div>
             {/* ADD TASK BUTTON */}
             <div className="flex justify-center items-center">
               <Button
                 type="primary"
                 shape="circle"
-                icon={<PlusOutlined style={{ fontSize: "24px" }} />}
+                icon={
+                  <FontAwesomeIcon icon={faPlus} style={{ fontSize: "24px" }} />
+                }
                 onClick={() => setIsModalVisible(true)}
                 size="large"
                 className="flex items-center justify-center focus:outline-none shadow-lg"
@@ -140,6 +174,7 @@ function MobileNavigation() {
                 }}
               />
             </div>
+            {/* STATS BUTTON */}
             <div className="flex flex-col items-center">
               <Button
                 className={`flex items-center justify-center border-none ${
@@ -147,19 +182,16 @@ function MobileNavigation() {
                     ? "text-blue-500"
                     : "text-gray-500"
                 } focus:outline-none`}
-                icon={<BarChartOutlined style={{ fontSize: "24px" }} />}
+                icon={
+                  <FontAwesomeIcon
+                    icon={faChartBar}
+                    style={{ fontSize: "26px" }}
+                  />
+                }
                 onClick={() => navigate("/stats")}
               />
-              <span
-                className={`text-xs mt-1 ${
-                  location.pathname === "/stats"
-                    ? "text-blue-500"
-                    : "text-gray-500"
-                }`}
-              >
-                Stats
-              </span>
             </div>
+            {/* SETTINGS BUTTON */}
             <div className="flex flex-col items-center">
               <Button
                 className={`flex items-center justify-center border-none ${
@@ -167,23 +199,17 @@ function MobileNavigation() {
                     ? "text-blue-500"
                     : "text-gray-500"
                 } focus:outline-none`}
-                icon={<SettingOutlined style={{ fontSize: "24px" }} />}
+                icon={
+                  <FontAwesomeIcon icon={faGear} style={{ fontSize: "26px" }} />
+                }
                 onClick={() => navigate("/settings")}
               />
-              <span
-                className={`text-xs mt-1 ${
-                  location.pathname === "/settings"
-                    ? "text-blue-500"
-                    : "text-gray-500"
-                }`}
-              >
-                Settings
-              </span>
             </div>
           </div>
         </div>
       </div>
 
+      {/* MODAL */}
       <Modal
         title="Add New Task"
         open={isModalVisible}
@@ -197,6 +223,7 @@ function MobileNavigation() {
           onChange={(e) => setNewTask(e.target.value)}
           className="mb-4"
         />
+
         <div className="space-y-4">
           <AutoComplete
             className="w-full"
@@ -206,6 +233,17 @@ function MobileNavigation() {
             onChange={(value) => setCategory(value)}
             allowClear
           />
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <FontAwesomeIcon icon={faStar} className="text-yellow-500" />
+              <Text>Priority Task</Text>
+            </div>
+            <Switch
+              checked={isPriority}
+              onChange={setIsPriority}
+              className={isPriority ? "bg-yellow-500" : ""}
+            />
+          </div>
           <Divider className="my-4">Available Categories</Divider>
           <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
             {categoryOptions.map((cat) => (

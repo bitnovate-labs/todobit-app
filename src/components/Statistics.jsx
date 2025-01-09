@@ -61,12 +61,8 @@ function Statistics() {
   }, []);
 
   return (
-    <div className="max-w-4xl mx-auto md:mt-0 space-y-4">
-      <div className="hidden md:flex items-center justify-center h-14">
-        <h2 className="text-lg font-semibold">Habit Tracking</h2>
-      </div>
+    <div className="max-w-4xl mx-auto md:mt-0 space-y-20">
       <MobileHeader title="Habit Tracking" />
-
       {loading ? (
         <div className="flex justify-center py-8">
           <Spin size="large" />

@@ -1,6 +1,7 @@
 import { Button, Dropdown } from "antd";
-import { MenuOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBars } from "@fortawesome/free-solid-svg-icons";
 
 function MobileHeader({ title }) {
   const navigate = useNavigate();
@@ -19,14 +20,14 @@ function MobileHeader({ title }) {
   ];
 
   return (
-    <div className="h-14 flex items-center justify-between px-4 md:hidden">
+    <div className="h-14 flex items-center justify-between px-8 pt-10 pb-8 md:hidden fixed top-0 left-0 right-0 bg-white z-20 border-b border-gray-200">
       <Dropdown
         menu={{ items: menuItems }}
         placement="bottomLeft"
         trigger={["click"]}
       >
         <Button
-          icon={<MenuOutlined style={{ fontSize: "20px" }} />}
+          icon={<FontAwesomeIcon icon={faBars} style={{ fontSize: "20px" }} />}
           type="text"
           className="hover:bg-gray-100"
           style={{

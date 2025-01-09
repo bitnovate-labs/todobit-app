@@ -4,6 +4,7 @@ export default {
   theme: {
     extend: {
       colors: {
+        violet: "#6E5CFF",
         activityColor: {
           none: "#ebedf0",
           low: "#9be9a8",

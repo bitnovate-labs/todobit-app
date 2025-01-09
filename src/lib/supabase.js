@@ -21,10 +21,10 @@ export const subscribeToTodos = (callback) => {
 // Todo CRUD operations
 export const todoApi = {
   // Create a new todo
-  async create(task, hashtag) {
+  async create(task, hashtag, isPriority = false) {
     const { data, error } = await supabase
       .from("todos")
-      .insert([{ task, hashtag }])
+      .insert([{ task, hashtag, is_priority: isPriority }])
       .select()
       .single();
 
@@ -244,6 +244,51 @@ export const taskGroupsApi = {
 
     if (error) throw error;
     return data;
+  },
+
+  // Update task group
+  async update(id, name, description) {
+    const { data, error } = await supabase
+      .from("task_groups")
+      .update({ name, description })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  // Delete task group
+  async delete(id) {
+    const { error } = await supabase.from("task_groups").delete().eq("id", id);
+
+    if (error) throw error;
+    return true;
+  },
+
+  // Update task group item
+  async updateItem(itemId, task, hashtag) {
+    const { data, error } = await supabase
+      .from("task_group_items")
+      .update({ task, hashtag })
+      .eq("id", itemId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  // Delete task group item
+  async deleteItem(itemId) {
+    const { error } = await supabase
+      .from("task_group_items")
+      .delete()
+      .eq("id", itemId);
+
+    if (error) throw error;
+    return true;
   },
 
   // Add group tasks to todos
