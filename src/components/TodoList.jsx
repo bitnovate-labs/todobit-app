@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from "react";
 import {
   Card,
   Checkbox,
-  Tag,
   Empty,
   Typography,
   Row,
@@ -11,11 +10,12 @@ import {
   Modal,
   Input,
 } from "antd";
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { ClearOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import MobileHeader from "./MobileHeader";
+import { motion, AnimatePresence } from "motion/react";
 import { todoApi, subscribeToTodos } from "../lib/supabase";
-import { CSSTransition, TransitionGroup } from "react-transition-group";
+import EmptyState from "./EmptyState";
 
 function TodoList() {
   const [tasks, setTasks] = useState([]);
@@ -26,18 +26,9 @@ function TodoList() {
   const [lastCheckDate, setLastCheckDate] = useState(
     dayjs().format("YYYY-MM-DD")
   );
+  const [clearModalVisible, setClearModalVisible] = useState(false);
 
-  const handleEdit = async () => {
-    try {
-      await todoApi.update(editingTask.id, editedText, editedHashtag);
-      setEditingTask(null);
-      setEditedText("");
-      setEditedHashtag("");
-    } catch (error) {
-      console.error("Error updating task:", error);
-    }
-  };
-
+  // Fetch Data
   const fetchTasks = useCallback(async () => {
     try {
       const data = await todoApi.getAll();
@@ -93,6 +84,7 @@ function TodoList() {
     };
   }, [fetchTasks]);
 
+  // HANDLE COMPLETE
   const handleTaskComplete = async (taskId) => {
     try {
       const task = tasks.find((t) => t.id === taskId);
@@ -121,11 +113,35 @@ function TodoList() {
     }
   };
 
+  // HANDLE EDIT
+  const handleEdit = async () => {
+    try {
+      await todoApi.update(editingTask.id, editedText, editedHashtag);
+      setEditingTask(null);
+      setEditedText("");
+      setEditedHashtag("");
+    } catch (error) {
+      console.error("Error updating task:", error);
+    }
+  };
+
+  // HANDLE DELETE
   const handleDelete = async (taskId) => {
     try {
       await todoApi.delete(taskId);
     } catch (error) {
       console.error("Error deleting task:", error);
+    }
+  };
+
+  // HANDLE CLEAR ALL
+  const handleClearAll = async () => {
+    try {
+      await todoApi.clearAll();
+      setClearModalVisible(false);
+      // Tasks will be updated automatically through the subscription
+    } catch (error) {
+      console.error("Error clearing tasks:", error);
     }
   };
 
@@ -136,73 +152,112 @@ function TodoList() {
       </div>
       <div>
         <MobileHeader title="Today's Tasks" />
-        <p className="text-center text-gray-500">
-          {tasks.filter((task) => !task.is_completed).length} tasks remaining
-        </p>
+        <div className="flex items-center justify-between w-full">
+          <p className="text-gray-500 ml-2">
+            {tasks.filter((task) => !task.is_completed).length} tasks remaining
+          </p>
+          {tasks.some((task) => !task.is_completed) && (
+            <Button
+              danger
+              icon={<ClearOutlined />}
+              className="hover:text-red-500 rounded-2xl"
+              onClick={() => setClearModalVisible(true)}
+            >
+              Clear All
+            </Button>
+          )}
+        </div>
       </div>
-      {tasks.length > 0 ? (
-        <TransitionGroup component={Row} gutter={[16, 16]}>
-          {tasks
-            .filter((task) => !task.is_completed || showCompleted)
-            .map((task) => (
-              <CSSTransition key={task.id} timeout={1500} classNames="task">
-                <Col xs={24}>
-                  <Card
-                    hoverable
-                    className="shadow-md hover:shadow-md transition-shadow"
+
+      {/* TASK CARDS */}
+      {tasks.some((task) => !task.is_completed) ? (
+        <Row gutter={[16, 16]}>
+          <AnimatePresence mode="popLayout">
+            {tasks
+              .filter((task) => !task.is_completed || showCompleted)
+              .map((task) => (
+                <Col xs={24} key={task.id}>
+                  <motion.div
+                    initial={{ opacity: 0, height: "auto" }}
+                    exit={{
+                      opacity: 0,
+                      height: 0,
+                      marginBottom: 0,
+                      transition: {
+                        opacity: { duration: 0.2 },
+                        height: { duration: 0.3, delay: 0.2 },
+                      },
+                      y: 25,
+                    }}
+                    layout
+                    animate={{
+                      opacity: 1,
+                      y: 0,
+                    }}
+                    transition={{ duration: 0.6, ease: "easeInOut" }}
                   >
-                    <div className="flex justify-between gap-2">
-                      <div className="flex items-start min-w-0">
-                        <Checkbox
-                          checked={task.is_completed}
-                          onChange={() => handleTaskComplete(task.id)}
-                          className="scale-125"
-                        />
-                        <Typography.Text
-                          className="ml-4 break-words"
-                          style={{ width: "100%" }}
-                          delete={task.is_completed}
-                        >
-                          {task.task}
-                        </Typography.Text>
-                      </div>
-                      <div className="flex items-center justify-between ml-8">
-                        <div></div>
-                        <div className="flex gap-2">
-                          <Button
-                            type="text"
-                            icon={<EditOutlined />}
-                            size="small"
-                            className="text-gray-400 hover:text-blue-500"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setEditingTask(task);
-                              setEditedText(task.task);
-                              setEditedHashtag(task.hashtag || "");
-                            }}
+                    <Card
+                      hoverable
+                      className="shadow-md hover:shadow-md rounded-2xl transition-shadow"
+                    >
+                      <div className="flex justify-between gap-2">
+                        <div className="flex items-start min-w-0">
+                          {/* TODO CHECKBOX */}
+                          <Checkbox
+                            checked={task.is_completed}
+                            onChange={() => handleTaskComplete(task.id)}
+                            className="scale-125"
                           />
-                          <Button
-                            type="text"
-                            icon={<DeleteOutlined />}
-                            size="small"
-                            className="text-gray-400 hover:text-red-500"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDelete(task.id);
-                            }}
-                          />
+                          {/* TODO TEXT */}
+                          <Typography.Text
+                            className="ml-4 break-words"
+                            style={{ width: "100%" }}
+                            delete={task.is_completed}
+                          >
+                            {task.task}
+                          </Typography.Text>
+                        </div>
+                        <div className="flex items-center justify-between ml-8">
+                          <div className="flex gap-2">
+                            {/* EDIT BUTTON */}
+                            <Button
+                              type="text"
+                              icon={<EditOutlined />}
+                              size="small"
+                              className="text-gray-400 hover:text-blue-500"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingTask(task);
+                                setEditedText(task.task);
+                                setEditedHashtag(task.hashtag || "");
+                              }}
+                            />
+                            {/* DELETE BUTTON */}
+                            <Button
+                              type="text"
+                              icon={<DeleteOutlined />}
+                              size="small"
+                              className="text-red-400 hover:text-red-500"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(task.id);
+                              }}
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </Card>
+                    </Card>
+                  </motion.div>
                 </Col>
-              </CSSTransition>
-            ))}
-        </TransitionGroup>
+              ))}
+          </AnimatePresence>
+        </Row>
       ) : (
-        <Empty description="No tasks yet" className="my-8" />
+        // <Empty description="No tasks yet" className="my-8" />
+        <EmptyState />
       )}
 
+      {/* MODAL - EDIT TASK */}
       <Modal
         title="Edit Task"
         open={!!editingTask}
@@ -226,6 +281,20 @@ function TodoList() {
             prefix="#"
           />
         </div>
+      </Modal>
+
+      {/* MODAL - CLEAR ALL TASKS */}
+      <Modal
+        title="Clear All Tasks"
+        open={clearModalVisible}
+        onOk={handleClearAll}
+        onCancel={() => setClearModalVisible(false)}
+        okText="Clear All"
+        cancelText="Cancel"
+        okButtonProps={{ danger: true }}
+        style={{ top: "35%" }}
+      >
+        <p>Are you sure you want to delete all uncompleted tasks?</p>
       </Modal>
     </div>
   );

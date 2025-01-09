@@ -4,6 +4,7 @@ import dayjs from "dayjs";
 import PropTypes from "prop-types";
 import { supabase } from "../lib/supabase";
 import { DeleteOutlined } from "@ant-design/icons";
+import { capitalize } from "../utils/stringUtils";
 
 const { Text } = Typography;
 
@@ -71,11 +72,12 @@ function Heatmap({ data = [], hashtag, onDeleteCategory }) {
   }, [data, selectedDate]);
 
   const getColorClass = (count) => {
-    if (count === 0) return "bg-gray-100";
-    if (count === 1) return "bg-green-200";
-    if (count === 2) return "bg-green-300";
-    if (count === 3) return "bg-green-400";
-    return "bg-green-500";
+    if (count === 0) return "bg-activityColor-none";
+    if (count === 1) return "bg-activityColor-low";
+    if (count === 2) return "bg-activityColor-mediumLow";
+    if (count === 3) return "bg-activityColor-mediumHigh";
+    if (count === 4) return "bg-activityColor-high";
+    return "bg-activityColor-high";
   };
 
   const fetchTasksForDate = useMemo(
@@ -124,7 +126,7 @@ function Heatmap({ data = [], hashtag, onDeleteCategory }) {
       }}
     >
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold">#{hashtag}</h3>
+        <h3 className="text-lg font-semibold">{capitalize(hashtag)}</h3>
         <Text className="text-gray-500">{dayjs().format("MMMM YYYY")}</Text>
       </div>
       <div className="overflow-hidden heatmap-content">
@@ -149,9 +151,9 @@ function Heatmap({ data = [], hashtag, onDeleteCategory }) {
                     key={`${day.short}-${weekIndex}`}
                     className={`w-4 h-4 rounded-sm ${getColorClass(
                       cell.count
-                    )} ${
-                      selectedDate?.isSame(cell.date, "day")
-                        ? "ring-2 ring-blue-500"
+                    )}  ${
+                      dayjs().isSame(cell.date, "day")
+                        ? "ring-2 ring-green-500"
                         : ""
                     } transition-colors`}
                     title={`${cell.date.format("MMM D")}: ${cell.count} tasks`}
@@ -164,7 +166,7 @@ function Heatmap({ data = [], hashtag, onDeleteCategory }) {
       </div>
 
       <Drawer
-        title={`${hashtag.toUpperCase()} - ${selectedDate?.format(
+        title={`${capitalize(hashtag)} - ${selectedDate?.format(
           "MMM D, YYYY"
         )}`}
         placement="right"

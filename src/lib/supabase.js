@@ -43,6 +43,17 @@ export const todoApi = {
     return data;
   },
 
+  // Clear all non-completed tasks
+  async clearAll() {
+    const { error } = await supabase
+      .from("todos")
+      .delete()
+      .eq("is_completed", false);
+
+    if (error) throw error;
+    return true;
+  },
+
   // Archive completed tasks and clear todo list
   async archiveAndClear() {
     try {
