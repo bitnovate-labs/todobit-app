@@ -24,7 +24,13 @@ export const todoApi = {
   async create(task, hashtag, isPriority = false) {
     const { data, error } = await supabase
       .from("todos")
-      .insert([{ task, hashtag, is_priority: isPriority }])
+      .insert([
+        {
+          task,
+          hashtag: hashtag || "", // Provide empty string as default
+          is_priority: isPriority,
+        },
+      ])
       .select()
       .single();
 
@@ -293,16 +299,28 @@ export const taskGroupsApi = {
 
   // Add group tasks to todos
   async addToTodos(groupId) {
-    const { data: items } = await supabase
+    const { data: items, error } = await supabase
       .from("task_group_items")
       .select("*")
       .eq("group_id", groupId);
 
-    if (items) {
-      const promises = items.map((item) =>
-        todoApi.create(item.task, item.hashtag)
-      );
-      await Promise.all(promises);
+    if (error) {
+      console.error("Error fetching task group items:", error);
+      throw error;
+    }
+
+    if (!items || items.length === 0) {
+      return;
+    }
+
+    try {
+      // Create tasks one by one to ensure proper order and error handling
+      for (const item of items) {
+        await todoApi.create(item.task, item.hashtag);
+      }
+    } catch (error) {
+      console.error("Error adding tasks to todo list:", error);
+      throw error;
     }
   },
 };
