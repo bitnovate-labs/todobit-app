@@ -1,10 +1,16 @@
+import { useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   useLocation,
+  Navigate,
 } from "react-router-dom";
 import { Layout } from "antd";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import Welcome from "./pages/Welcome";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 import MobileNavigation from "./components/MobileNavigation";
 import DesktopSidebar from "./components/DesktopSidebar";
 import DesktopHeader from "./components/DesktopHeader";
@@ -14,20 +20,35 @@ import Statistics from "./components/Statistics";
 import CompletedTasks from "./components/CompletedTasks";
 import TaskGroups from "./components/TaskGroups";
 import Settings from "./components/Settings";
+import Profile from "./components/Profile";
 import "./App.css";
-import { useEffect } from "react";
 
 function AppContent() {
   const location = useLocation();
+  const { user } = useAuth();
 
   useEffect(() => {
-    // Handle PWA actions
-    const params = new URLSearchParams(location.search);
-    if (params.has("action") && params.get("action") === "new") {
-      // Open new task modal
-      document.dispatchEvent(new CustomEvent("open-new-task"));
+    if (user) {
+      // Handle PWA actions
+      const params = new URLSearchParams(location.search);
+      if (params.has("action") && params.get("action") === "new") {
+        // Open new task modal
+        document.dispatchEvent(new CustomEvent("open-new-task"));
+      }
     }
-  }, [location]);
+  }, [location, user]);
+
+  // If user is not authenticated, show auth pages
+  if (!user) {
+    return (
+      <Routes>
+        <Route path="/" element={<Welcome />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    );
+  }
 
   return (
     <Layout className="min-h-[100dvh] bg-gray-50">
@@ -41,6 +62,7 @@ function AppContent() {
               <Route path="/stats" element={<Statistics />} />
               <Route path="/groups" element={<TaskGroups />} />
               <Route path="/groups" element={<TaskGroups />} />
+              <Route path="/profile" element={<Profile />} />
               <Route path="/settings" element={<Settings />} />
             </Routes>
           </Layout.Content>
@@ -54,6 +76,7 @@ function AppContent() {
             <Route path="/stats" element={<Statistics />} />
             <Route path="/groups" element={<TaskGroups />} />
             <Route path="/completed" element={<CompletedTasks />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="/settings" element={<Settings />} />
           </Routes>
         </Layout.Content>
@@ -66,7 +89,9 @@ function AppContent() {
 function App() {
   return (
     <Router>
-      <AppContent />
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
     </Router>
   );
 }

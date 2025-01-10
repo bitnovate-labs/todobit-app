@@ -22,12 +22,18 @@ export const subscribeToTodos = (callback) => {
 export const todoApi = {
   // Create a new todo
   async create(task, hashtag, isPriority = false) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) throw new Error("Please sign in to create tasks");
+
     const { data, error } = await supabase
       .from("todos")
       .insert([
         {
           task,
-          hashtag: hashtag || "", // Provide empty string as default
+          hashtag: hashtag || null,
+          user_id: user.id,
           is_priority: isPriority,
         },
       ])
@@ -40,9 +46,16 @@ export const todoApi = {
 
   // Read all todos
   async getAll() {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) throw new Error("Please sign in to view tasks");
+
     const { data, error } = await supabase
       .from("todos")
       .select("*")
+      .eq("user_id", user.id)
+      .eq("user_id", user.id)
       .order("created_at", { ascending: false });
 
     if (error) throw error;
@@ -51,10 +64,16 @@ export const todoApi = {
 
   // Clear all non-completed tasks
   async clearAll() {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) throw new Error("Please sign in to clear tasks");
+
     const { error } = await supabase
       .from("todos")
       .delete()
-      .eq("is_completed", false);
+      .eq("is_completed", false)
+      .eq("user_id", user.id);
 
     if (error) throw error;
     return true;
@@ -82,10 +101,16 @@ export const todoApi = {
 
   // Get todos by hashtag
   async getByHashtag(hashtag) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) throw new Error("Please sign in to view tasks");
+
     const { data, error } = await supabase
       .from("todos")
       .select("*")
       .eq("hashtag", hashtag)
+      .eq("user_id", user.id)
       .order("created_at", { ascending: false });
 
     if (error) throw error;
@@ -94,10 +119,16 @@ export const todoApi = {
 
   // Update todo text
   async update(id, task, hashtag) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) throw new Error("Please sign in to update tasks");
+
     const { data, error } = await supabase
       .from("todos")
       .update({ task, hashtag })
       .eq("id", id)
+      .eq("user_id", user.id)
       .select()
       .single();
 
@@ -107,6 +138,11 @@ export const todoApi = {
 
   // Update todo completion status
   async toggleComplete(id, isCompleted) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) throw new Error("Please sign in to update tasks");
+
     const { data, error } = await supabase
       .from("todos")
       .update({
@@ -114,6 +150,7 @@ export const todoApi = {
         completed_at: isCompleted ? new Date().toISOString() : null,
       })
       .eq("id", id)
+      .eq("user_id", user.id)
       .select()
       .single();
 
@@ -123,9 +160,15 @@ export const todoApi = {
 
   // Get statistics by hashtag
   async getStatistics() {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) throw new Error("Please sign in to view statistics");
+
     const { data: todos, error } = await supabase
       .from("todos")
       .select("*")
+      .eq("user_id", user.id)
       .order("created_at", { ascending: false });
 
     if (error) throw error;
@@ -209,9 +252,20 @@ export const todoApi = {
 export const taskGroupsApi = {
   // Create a new task group
   async create(name, description = "") {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) throw new Error("Please sign in to create task groups");
+
     const { data, error } = await supabase
       .from("task_groups")
-      .insert([{ name, description }])
+      .insert([
+        {
+          name,
+          description,
+          user_id: user.id,
+        },
+      ])
       .select()
       .single();
 
@@ -238,6 +292,11 @@ export const taskGroupsApi = {
 
   // Get all task groups
   async getAll() {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) throw new Error("Please sign in to view task groups");
+
     const { data, error } = await supabase
       .from("task_groups")
       .select(
@@ -246,6 +305,7 @@ export const taskGroupsApi = {
         items:task_group_items(*)
       `
       )
+      .eq("user_id", user.id)
       .order("created_at", { ascending: false });
 
     if (error) throw error;
@@ -254,10 +314,16 @@ export const taskGroupsApi = {
 
   // Update task group
   async update(id, name, description) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) throw new Error("Please sign in to update task groups");
+
     const { data, error } = await supabase
       .from("task_groups")
       .update({ name, description })
       .eq("id", id)
+      .eq("user_id", user.id)
       .select()
       .single();
 
@@ -267,7 +333,16 @@ export const taskGroupsApi = {
 
   // Delete task group
   async delete(id) {
-    const { error } = await supabase.from("task_groups").delete().eq("id", id);
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) throw new Error("Please sign in to delete task groups");
+
+    const { error } = await supabase
+      .from("task_groups")
+      .delete()
+      .eq("id", id)
+      .eq("user_id", user.id);
 
     if (error) throw error;
     return true;

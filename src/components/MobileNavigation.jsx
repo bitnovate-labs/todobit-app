@@ -15,9 +15,9 @@ import {
   faPlus,
   faHome,
   faChartBar,
-  faGear,
   faStar,
   faLayerGroup,
+  faUser,
 } from "@fortawesome/free-solid-svg-icons";
 
 const { Text } = Typography;
@@ -191,18 +191,18 @@ function MobileNavigation() {
                 onClick={() => navigate("/stats")}
               />
             </div>
-            {/* SETTINGS BUTTON */}
+            {/* USER BUTTON */}
             <div className="flex flex-col items-center">
               <Button
                 className={`flex items-center justify-center border-none ${
-                  location.pathname === "/settings"
+                  location.pathname === "/profile"
                     ? "text-blue-500"
                     : "text-gray-500"
                 } focus:outline-none`}
                 icon={
-                  <FontAwesomeIcon icon={faGear} style={{ fontSize: "26px" }} />
+                  <FontAwesomeIcon icon={faUser} style={{ fontSize: "26px" }} />
                 }
-                onClick={() => navigate("/settings")}
+                onClick={() => navigate("/profile")}
               />
             </div>
           </div>
