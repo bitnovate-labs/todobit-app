@@ -8,6 +8,7 @@ import {
   Button,
   Modal,
   Input,
+  Carousel,
 } from "antd";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
@@ -144,15 +145,48 @@ function TodoList() {
     }
   };
 
+  // TESTING STYLING for SECTION
+  const contentStyle = {
+    height: "160px",
+    color: "#ffffff",
+    lineHeight: "160px",
+    textAlign: "center",
+    fontSize: "25px",
+    background: "#2563eb",
+  };
+
   return (
     <div className="max-w-2xl mx-auto space-y-4 md:mt-0 mt-[4.5rem]">
+      {/* DESKTOP HEADER */}
       <div className="hidden md:flex items-center justify-center h-14">
-        <h2 className="text-lg font-semibold">Today's Tasks</h2>
+        <h2 className="text-lg font-semibold">Homepage</h2>
       </div>
       <div className="fixed top-[3.5rem] left-0 right-0 bg-white z-10 md:relative md:top-0">
         {/* MOBILE HEADER */}
-        <MobileHeader title="Today's Tasks" />
-        <div className="flex items-center justify-between w-full mt-2 max-w-2xl mx-auto px-4 pb-2">
+        <MobileHeader title="Homepage" />
+
+        {/* SECTION */}
+        <div className="p-[6px] mt-4">
+          <Card className="m-4 rounded-3xl bg-blue-600 border-none shadow-lg">
+            <Carousel autoplay>
+              <div className=" break-all ">
+                <h3 style={contentStyle}>Today Is When You Start!</h3>
+              </div>
+              <div>
+                <h3 style={contentStyle}>2</h3>
+              </div>
+              <div>
+                <h3 style={contentStyle}>3</h3>
+              </div>
+              <div>
+                <h3 style={contentStyle}>4</h3>
+              </div>
+            </Carousel>
+          </Card>
+        </div>
+
+        {/* Tasks remaining and Clear All Button */}
+        <div className="flex items-center justify-between w-full max-w-2xl mx-auto px-4 pb-2">
           <p className="text-gray-500 ml-2">
             {tasks.filter((task) => !task.is_completed).length} tasks remaining
           </p>
@@ -171,7 +205,7 @@ function TodoList() {
       </div>
 
       {/* TASK CARDS */}
-      <div className="pt-[50px]">
+      <div className="pt-[310px]">
         {tasks.some((task) => !task.is_completed) ? (
           <Row gutter={[16, 16]} className="relative z-0">
             <AnimatePresence mode="popLayout">

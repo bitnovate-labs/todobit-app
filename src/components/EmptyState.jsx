@@ -10,7 +10,7 @@ function EmptyState() {
       className="p-8 text-center"
     >
       <motion.div
-        className="max-w-[250px] mx-auto mb-6 opacity-45 "
+        className="max-w-[150px] mx-auto opacity-45 "
         initial={{ scale: 0.9 }}
         animate={{ scale: 1 }}
         transition={{

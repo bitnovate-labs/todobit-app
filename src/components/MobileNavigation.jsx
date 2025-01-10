@@ -164,11 +164,11 @@ function MobileNavigation() {
                 type="primary"
                 shape="circle"
                 icon={
-                  <FontAwesomeIcon icon={faPlus} style={{ fontSize: "24px" }} />
+                  <FontAwesomeIcon icon={faPlus} style={{ fontSize: "30px" }} />
                 }
                 onClick={() => setIsModalVisible(true)}
-                size="large"
-                className="flex items-center justify-center focus:outline-none shadow-lg"
+                // size="large"
+                className="flex items-center justify-center"
                 style={{
                   padding: "30px",
                 }}
