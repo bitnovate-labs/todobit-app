@@ -33,7 +33,7 @@ function Heatmap({ data = [], hashtag, onDeleteCategory }) {
     );
 
     const today = dayjs();
-    const endDate = today.endOf("week");
+    const endDate = today.endOf("week").add(1, "week");
     const startDate = endDate
       .subtract(WEEKS_TO_SHOW - 1, "week")
       .startOf("week");
@@ -63,7 +63,12 @@ function Heatmap({ data = [], hashtag, onDeleteCategory }) {
         (d) => d.short === date.format("ddd")
       );
 
-      if (weekIndex >= 0 && weekIndex < WEEKS_TO_SHOW && dayIndex >= 0) {
+      if (
+        weekIndex >= 0 &&
+        weekIndex < WEEKS_TO_SHOW &&
+        dayIndex >= 0 &&
+        date.isBefore(endDate)
+      ) {
         grid[dayIndex][weekIndex].count = item.count;
       }
     });
@@ -130,7 +135,7 @@ function Heatmap({ data = [], hashtag, onDeleteCategory }) {
         <Text className="text-gray-500">{dayjs().format("MMMM YYYY")}</Text>
       </div>
       <div className="overflow-hidden heatmap-content">
-        <div className="flex gap-2 overflow-x-auto pb-2">
+        <div className="flex gap-2 overflow-x-auto py-2">
           <div className="flex flex-col gap-1">
             {DAYS_OF_WEEK.map((day) => (
               <div
@@ -152,7 +157,7 @@ function Heatmap({ data = [], hashtag, onDeleteCategory }) {
                     className={`w-4 h-4 rounded-sm ${getColorClass(
                       cell.count
                     )}  ${
-                      dayjs().isSame(cell.date, "day")
+                      dayjs().isSame(cell.date.add(1, "week"), "day")
                         ? "ring-2 ring-green-500"
                         : ""
                     } transition-colors`}

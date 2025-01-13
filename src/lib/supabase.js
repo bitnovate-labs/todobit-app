@@ -32,7 +32,7 @@ export const todoApi = {
       .insert([
         {
           task,
-          hashtag: hashtag || null,
+          hashtag: hashtag || "", // Use empty string instead of null
           user_id: user.id,
           is_priority: isPriority,
         },
@@ -275,6 +275,11 @@ export const taskGroupsApi = {
 
   // Add items to a task group
   async addItems(groupId, items) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) throw new Error("Please sign in to add task group items");
+
     const { data, error } = await supabase
       .from("task_group_items")
       .insert(
@@ -282,6 +287,7 @@ export const taskGroupsApi = {
           group_id: groupId,
           task: item.task,
           hashtag: item.hashtag,
+          user_id: user.id,
         }))
       )
       .select();
@@ -350,10 +356,16 @@ export const taskGroupsApi = {
 
   // Update task group item
   async updateItem(itemId, task, hashtag) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) throw new Error("Please sign in to update task group items");
+
     const { data, error } = await supabase
       .from("task_group_items")
       .update({ task, hashtag })
       .eq("id", itemId)
+      .eq("user_id", user.id)
       .select()
       .single();
 
@@ -363,10 +375,16 @@ export const taskGroupsApi = {
 
   // Delete task group item
   async deleteItem(itemId) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) throw new Error("Please sign in to delete task group items");
+
     const { error } = await supabase
       .from("task_group_items")
       .delete()
-      .eq("id", itemId);
+      .eq("id", itemId)
+      .eq("user_id", user.id);
 
     if (error) throw error;
     return true;
@@ -374,10 +392,16 @@ export const taskGroupsApi = {
 
   // Add group tasks to todos
   async addToTodos(groupId) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) throw new Error("Please sign in to add tasks");
+
     const { data: items, error } = await supabase
       .from("task_group_items")
       .select("*")
-      .eq("group_id", groupId);
+      .eq("group_id", groupId)
+      .eq("user_id", user.id);
 
     if (error) {
       console.error("Error fetching task group items:", error);
@@ -389,9 +413,18 @@ export const taskGroupsApi = {
     }
 
     try {
-      // Create tasks one by one to ensure proper order and error handling
+      // Create tasks one by one with user_id
       for (const item of items) {
-        await todoApi.create(item.task, item.hashtag);
+        const { error: createError } = await supabase.from("todos").insert([
+          {
+            task: item.task,
+            hashtag: item.hashtag || "",
+            user_id: user.id,
+            is_priority: false,
+          },
+        ]);
+
+        if (createError) throw createError;
       }
     } catch (error) {
       console.error("Error adding tasks to todo list:", error);

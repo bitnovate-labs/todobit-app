@@ -8,6 +8,7 @@ import {
   Divider,
   Typography,
   Switch,
+  message,
 } from "antd";
 import { todoApi, supabase } from "../lib/supabase";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -83,7 +84,7 @@ function MobileNavigation() {
           ),
         ]);
       } catch (error) {
-        console.error("Error fetching categories:", error);
+        console.error("Error fetching categories:", error.message);
       }
     };
 
@@ -92,6 +93,11 @@ function MobileNavigation() {
 
   // HANDLE ADD TASK
   const handleAddTask = async () => {
+    if (!newTask.trim()) {
+      message.error("Please enter a task");
+      return;
+    }
+
     try {
       // Check priority task limit
       if (isPriority) {
@@ -112,7 +118,7 @@ function MobileNavigation() {
       }
 
       const hashtag = category.startsWith("#") ? category.slice(1) : category;
-      await todoApi.create(newTask, hashtag, isPriority);
+      await todoApi.create(newTask.trim(), hashtag || null, isPriority);
 
       // Reset form
       setNewTask("");
@@ -120,7 +126,8 @@ function MobileNavigation() {
       setIsPriority(false);
       setIsModalVisible(false);
     } catch (error) {
-      console.error("Error adding task:", error);
+      console.error("Error adding task:", error.message);
+      message.error(error.message);
     }
   };
 
@@ -233,8 +240,9 @@ function MobileNavigation() {
             onChange={(value) => setCategory(value)}
             allowClear
           />
+          {/* PRIORITY TOGGLE SWITCH */}
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 my-2">
               <FontAwesomeIcon icon={faStar} className="text-yellow-500" />
               <Text>Priority Task</Text>
             </div>
@@ -245,7 +253,7 @@ function MobileNavigation() {
             />
           </div>
           <Divider className="my-4">Available Categories</Divider>
-          <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
+          <div className="space-y-2 max-h-20 overflow-y-auto pr-2">
             {categoryOptions.map((cat) => (
               <div key={cat.value} className="flex items-start">
                 <Text

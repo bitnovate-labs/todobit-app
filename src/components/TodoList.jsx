@@ -15,7 +15,15 @@ import dayjs from "dayjs";
 import MobileHeader from "./MobileHeader";
 import { motion, AnimatePresence } from "motion/react";
 import { todoApi, subscribeToTodos } from "../lib/supabase";
-import EmptyState from "./EmptyState";
+import EmptyState from "./EmptyTodo";
+// import home_image from "../assets/home.png";
+// import forest_image from "../assets/forest.png";
+// import forest_image from "../assets/forestscape.jpg";
+// import forest_image from "../assets/house.png";
+import forest_image from "../assets/tree.jpg";
+import { useAuth } from "../context/AuthContext";
+
+const { Text } = Typography;
 
 function TodoList() {
   const [tasks, setTasks] = useState([]);
@@ -27,6 +35,11 @@ function TodoList() {
     dayjs().format("YYYY-MM-DD")
   );
   const [clearModalVisible, setClearModalVisible] = useState(false);
+  const { user } = useAuth();
+
+  // Get user's name from metadata or email
+  const userName =
+    user?.user_metadata?.name || user?.email?.split("@")[0] || "there";
 
   // Fetch Data
   const fetchTasks = useCallback(async () => {
@@ -152,7 +165,10 @@ function TodoList() {
     lineHeight: "160px",
     textAlign: "center",
     fontSize: "25px",
-    background: "#2563eb",
+    // background: "#2563eb",
+    background: "linear-gradient(to right, #ffffff, #2563eb)",
+    borderRadius: "12px",
+    overflow: "hidden",
   };
 
   return (
@@ -161,13 +177,41 @@ function TodoList() {
       <div className="hidden md:flex items-center justify-center h-14">
         <h2 className="text-lg font-semibold">Homepage</h2>
       </div>
+
       <div className="fixed top-[3.5rem] left-0 right-0 bg-white z-10 md:relative md:top-0">
         {/* MOBILE HEADER */}
         <MobileHeader title="Homepage" />
+        <div className="flex items-center gap-3 px-4 pt-4 pb-2 md:pt-4">
+          <img
+            src={
+              user?.user_metadata?.avatar_url ||
+              `https://api.dicebear.com/7.x/micah/svg?seed=${user?.id}`
+            }
+            alt="Profile"
+            className="w-12 h-12 rounded-full ml-2"
+          />
+          <div className="ml-2">
+            <h2 className="text-lg font-semibold">Hello {userName}!</h2>
+            <Text className="text-gray-500">
+              You have {tasks.filter((task) => !task.is_completed).length} tasks
+              today
+            </Text>
+          </div>
+        </div>
 
         {/* SECTION */}
-        <div className="p-[6px] mt-4">
-          <Card className="m-4 rounded-3xl bg-blue-600 border-none shadow-lg">
+        <div className="mt-2 flex flex-col justify-center items-center">
+          <div className="m-auto">
+            {/* <img src={home_image} alt="login image" className="px-6" /> */}
+            <img src={forest_image} alt="login image" />
+          </div>
+          {/* <Card
+            size="small"
+            className="rounded-3xl border-none shadow-lg bg-blue-600 my-2"
+            style={{
+              width: 350,
+            }}
+          >
             <Carousel autoplay>
               <div className=" break-all ">
                 <h3 style={contentStyle}>Today Is When You Start!</h3>
@@ -182,14 +226,14 @@ function TodoList() {
                 <h3 style={contentStyle}>4</h3>
               </div>
             </Carousel>
-          </Card>
+          </Card> */}
         </div>
 
         {/* Tasks remaining and Clear All Button */}
-        <div className="flex items-center justify-between w-full max-w-2xl mx-auto px-4 pb-2">
-          <p className="text-gray-500 ml-2">
-            {tasks.filter((task) => !task.is_completed).length} tasks remaining
-          </p>
+        <div className="flex items-center justify-between w-full max-w-2xl mx-auto px-4 py-2">
+          <h2 className="text-gray-500 text-base ml-2 font-semibold">
+            Today's Tasks
+          </h2>
           {tasks.some((task) => !task.is_completed) && (
             <Button
               danger
@@ -205,7 +249,7 @@ function TodoList() {
       </div>
 
       {/* TASK CARDS */}
-      <div className="pt-[310px]">
+      <div className="pt-[360px]">
         {tasks.some((task) => !task.is_completed) ? (
           <Row gutter={[16, 16]} className="relative z-0">
             <AnimatePresence mode="popLayout">

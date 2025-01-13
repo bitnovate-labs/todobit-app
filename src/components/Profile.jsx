@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   Card,
   Avatar,
@@ -15,6 +15,7 @@ import {
   SettingOutlined,
   LogoutOutlined,
   RightOutlined,
+  CameraOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
@@ -25,10 +26,87 @@ const { Text } = Typography;
 
 function Profile() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [passwordModalVisible, setPasswordModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (event) => {
+    try {
+      const file = event.target.files?.[0]; // Get the selected file
+      if (!file) return;
+
+      // Validate file type
+      if (!file.type.startsWith("image/")) {
+        message.error("Please upload an image file");
+        return;
+      }
+
+      // Validate file size (max 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        message.error("Image size should be less than 2MB");
+        return;
+      }
+
+      setLoading(true);
+
+      // Create a unique filename using timestamp
+      const fileExt = file.name.split(".").pop();
+      const timestamp = new Date().getTime();
+      const filePath = `${user.id}/avatar-${timestamp}.${fileExt}`;
+
+      // Upload file to Supabase Storage (using SDK Client)
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, file, {
+          cacheControl: "3600",
+        });
+
+      if (uploadError) throw uploadError;
+
+      // After successful upload, clean up old avatars
+      try {
+        const { data: existingFiles } = await supabase.storage
+          .from("avatars")
+          .list(user.id);
+
+        const oldFiles = existingFiles?.filter(
+          (f) => f.name !== `avatar-${timestamp}.${fileExt}`
+        );
+        if (oldFiles?.length > 0) {
+          await supabase.storage
+            .from("avatars")
+            .remove(oldFiles.map((f) => `${user.id}/${f.name}`));
+        }
+      } catch (cleanupError) {
+        console.error("Error cleaning up old avatars:", cleanupError);
+      }
+
+      // Get public URL
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("avatars").getPublicUrl(filePath);
+
+      // Update user metadata with the new avatar URL
+      const { error: updateError } = await supabase.auth.updateUser({
+        data: { avatar_url: publicUrl },
+      });
+
+      if (updateError) throw updateError;
+
+      message.success("Profile picture updated successfully");
+      refreshUser(); // Refresh user data to update the avatar
+    } catch (error) {
+      message.error(`Error updating profile picture: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -84,10 +162,30 @@ function Profile() {
 
       <Card className="shadow-sm pt-24 bg-transparent">
         <div className="flex flex-col items-center space-y-4">
-          <Avatar size={130} src={user?.user_metadata?.avatar_url}>
-            {user?.user_metadata?.name?.[0] || user?.email?.[0]}
-          </Avatar>
-          <Text className="text-xl font-semibold">
+          <div className="relative">
+            <Avatar
+              size={100}
+              src={user?.user_metadata?.avatar_url}
+              className="cursor-pointer border-2 border-transparent group-hover:border-blue-500 transition-all"
+              onClick={handleUploadClick}
+            >
+              {user?.user_metadata?.name?.[0] || user?.email?.[0]}
+            </Avatar>
+            <div
+              className="absolute inset-0 bg-black bg-opacity-40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
+              onClick={handleUploadClick}
+            >
+              <CameraOutlined className="text-white text-xl" />
+            </div>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              accept="image/*"
+              className="hidden"
+            />
+          </div>
+          <Text className="text-2xl font-bold">
             {user?.user_metadata?.name || "User"}
           </Text>
           <Text type="secondary">{user?.email}</Text>

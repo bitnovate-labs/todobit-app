@@ -4,7 +4,6 @@ import {
   Modal,
   Input,
   Form,
-  Empty,
   List,
   Tag,
   Typography,
@@ -19,6 +18,7 @@ import {
 } from "@ant-design/icons";
 import { taskGroupsApi } from "../lib/supabase";
 import MobileHeader from "./MobileHeader";
+import EmptyGroup from "./EmptyGroup";
 
 const { Text } = Typography;
 
@@ -267,10 +267,11 @@ function TaskGroups() {
           ))}
         </div>
       ) : (
-        <Empty
-          description="No task groups yet"
-          className="bg-white p-8 rounded-2xl shadow-md"
-        />
+        // <Empty
+        //   description="No task groups yet"
+        //   className="bg-white p-8 rounded-2xl shadow-md"
+        // />
+        <EmptyGroup />
       )}
 
       <Modal

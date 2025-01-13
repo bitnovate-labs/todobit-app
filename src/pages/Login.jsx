@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { Form, Input, Button, Typography, message } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import { supabase } from "../lib/supabase";
+import login_image from "../assets/login_img.png";
 
 const { Title, Text } = Typography;
 
@@ -28,9 +29,12 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center p-4">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg">
-        <div className="text-center">
+    <div className="h-screen bg-gradient-to-b from-blue-50 to-white grid grid-rows-3">
+      <div className="m-auto">
+        <img src={login_image} alt="login image" className="opacity-70 px-20" />
+      </div>
+      <div className="max-w-md w-screen space-y-8 bg-white p-8">
+        <div className="text-center mt-6">
           <Title level={2}>Welcome Back</Title>
           <Text className="text-gray-600">Sign in to continue to Go Task</Text>
         </div>
@@ -66,7 +70,7 @@ function Login() {
             <Button
               type="primary"
               htmlType="submit"
-              className="w-full"
+              className="text-lg w-full"
               size="large"
               loading={loading}
             >

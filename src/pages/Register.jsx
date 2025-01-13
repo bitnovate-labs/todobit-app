@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { Form, Input, Button, Typography, message } from "antd";
 import { UserOutlined, LockOutlined, MailOutlined } from "@ant-design/icons";
 import { supabase } from "../lib/supabase";
+import reg_image from "../assets/reg_img.png";
 
 const { Title, Text } = Typography;
 
@@ -35,11 +36,18 @@ function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center p-4">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg">
-        <div className="text-center">
+    <div className="h-screen bg-gradient-to-b from-blue-50 to-white grid grid-rows-3">
+      <div className="m-auto">
+        <img
+          src={reg_image}
+          alt="register welcome"
+          className="opacity-70 px-20"
+        />
+      </div>
+      <div className="max-w-md w-full space-y-8 bg-white p-8">
+        <div className="text-center mt-6">
           <Title level={2}>Create Account</Title>
-          <Text className="text-gray-600">Get started with Go Task</Text>
+          <Text className="text-gray-600">Get started with Dobit</Text>
         </div>
 
         <Form
@@ -87,7 +95,7 @@ function Register() {
             <Button
               type="primary"
               htmlType="submit"
-              className="w-full"
+              className="text-lg w-full"
               size="large"
               loading={loading}
             >

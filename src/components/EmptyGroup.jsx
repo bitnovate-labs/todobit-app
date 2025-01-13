@@ -1,8 +1,8 @@
 import { Empty } from "antd";
 import { motion } from "framer-motion";
-import Clipboard from "../assets/clipboard.png";
+import BlankClipboard from "../assets/emptygroup.png";
 
-function EmptyState() {
+function EmptyGroup() {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -20,16 +20,13 @@ function EmptyState() {
           ease: "easeInOut",
         }}
       >
-        <img src={Clipboard} alt="Empty clipboard" />
+        <img src={BlankClipboard} alt="Empty task group" />
       </motion.div>
       <Empty
         image={null}
         description={
-          <div className="space-y-2">
-            <p className="text-lg font-medium text-gray-800">No tasks yet</p>
-            <p className="text-sm text-gray-500">
-              Tap the '+' icon to get started!
-            </p>
+          <div>
+            <p className="text-sm text-gray-500">No task groups created yet</p>
           </div>
         }
       />
@@ -37,4 +34,4 @@ function EmptyState() {
   );
 }
 
-export default EmptyState;
+export default EmptyGroup;
