@@ -31,20 +31,24 @@ function MobileNavigation() {
   const [category, setCategory] = useState("");
   const [isPriority, setIsPriority] = useState(false);
   const [tasks, setTasks] = useState([]);
-  const [defaultCategories] = useState([
-    { value: "work", label: "#work", description: "Work-related tasks" },
-    {
-      value: "personal",
-      label: "#personal",
-      description: "Personal tasks and errands",
-    },
-    {
-      value: "health",
-      label: "#health",
-      description: "Health and wellness activities",
-    },
-  ]);
-  const [categoryOptions, setCategoryOptions] = useState(defaultCategories);
+  const [categoryOptions, setCategoryOptions] = useState([]);
+
+  // CODE FOR POTENTIAL FUTURE USE (MAY WANT TO ADD IN PREDEFINED CATEGORIES)
+  // const [categoryOptions, setCategoryOptions] = useState(defaultCategories);
+  // const [defaultCategories] = useState([]);
+  // const [defaultCategories] = useState([
+  //   { value: "work", label: "#work", description: "Work-related tasks" },
+  //   {
+  //     value: "personal",
+  //     label: "#personal",
+  //     description: "Personal tasks and errands",
+  //   },
+  //   {
+  //     value: "health",
+  //     label: "#health",
+  //     description: "Health and wellness activities",
+  //   },
+  // ]);
 
   useEffect(() => {
     const handleOpenNewTask = () => setIsModalVisible(true);
@@ -53,36 +57,32 @@ function MobileNavigation() {
       document.removeEventListener("open-new-task", handleOpenNewTask);
   }, []);
 
+  // FETCH CATEGORIES
   useEffect(() => {
     const fetchCategories = async () => {
-      // Fetch tasks to check priority count
-      const { data: tasksData } = await supabase
-        .from("todos")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      setTasks(tasksData || []);
-
       try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const userId = sessionData?.session?.user?.id;
+
+        if (!userId) return;
+
+        // Fetch only the current user's tasks
         const { data } = await supabase
           .from("todos")
           .select("hashtag")
+          .eq("user_id", userId) // Add this line to filter by user_id
           .not("hashtag", "is", null)
           .order("created_at", { ascending: false });
 
+        // Create unique list of hashtags from user's tasks only
         const uniqueHashtags = [...new Set(data.map((todo) => todo.hashtag))];
-        const recentCategories = uniqueHashtags.map((tag) => ({
+        const userCategories = uniqueHashtags.map((tag) => ({
           value: tag,
           label: `#${tag}`,
-          description: "Recently used category",
+          description: "Your category",
         }));
 
-        setCategoryOptions([
-          ...defaultCategories,
-          ...recentCategories.filter(
-            (cat) => !defaultCategories.some((def) => def.value === cat.value)
-          ),
-        ]);
+        setCategoryOptions(userCategories);
       } catch (error) {
         console.error("Error fetching categories:", error.message);
       }

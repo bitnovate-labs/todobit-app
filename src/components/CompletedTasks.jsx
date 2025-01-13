@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { List, Tag, Empty, Card, Typography, Button } from "antd";
+import { List, Empty, Card, Typography, Button } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import { supabase } from "../lib/supabase";
 import dayjs from "dayjs";

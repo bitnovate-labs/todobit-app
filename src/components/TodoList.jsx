@@ -8,18 +8,20 @@ import {
   Button,
   Modal,
   Input,
-  Carousel,
+  Dropdown,
+  // Carousel,
 } from "antd";
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faPenToSquare,
+  faTrashCan,
+  faEllipsis,
+} from "@fortawesome/free-solid-svg-icons";
 import dayjs from "dayjs";
 import MobileHeader from "./MobileHeader";
 import { motion, AnimatePresence } from "motion/react";
 import { todoApi, subscribeToTodos } from "../lib/supabase";
 import EmptyState from "./EmptyTodo";
-// import home_image from "../assets/home.png";
-// import forest_image from "../assets/forest.png";
-// import forest_image from "../assets/forestscape.jpg";
-// import forest_image from "../assets/house.png";
 import forest_image from "../assets/tree.jpg";
 import { useAuth } from "../context/AuthContext";
 
@@ -159,17 +161,19 @@ function TodoList() {
   };
 
   // TESTING STYLING for SECTION
-  const contentStyle = {
-    height: "160px",
-    color: "#ffffff",
-    lineHeight: "160px",
-    textAlign: "center",
-    fontSize: "25px",
-    // background: "#2563eb",
-    background: "linear-gradient(to right, #ffffff, #2563eb)",
-    borderRadius: "12px",
-    overflow: "hidden",
-  };
+  // const contentStyle = {
+  //   height: "160px",
+  //   // color: "#ffffff",
+  //   color: "#545454",
+  //   lineHeight: "160px",
+  //   textAlign: "center",
+  //   fontSize: "25px",
+  //   background: "#FFFFFF",
+  //   // background: "#2563eb",
+  //   // background: "linear-gradient(to right, #ffffff, #2563eb)",
+  //   borderRadius: "12px",
+  //   overflow: "hidden",
+  // };
 
   return (
     <div className="max-w-2xl mx-auto space-y-4 md:mt-0 mt-[4.5rem]">
@@ -188,7 +192,7 @@ function TodoList() {
               `https://api.dicebear.com/7.x/micah/svg?seed=${user?.id}`
             }
             alt="Profile"
-            className="w-12 h-12 rounded-full ml-2"
+            className="w-12 h-auto rounded-full ml-2"
           />
           <div className="ml-2">
             <h2 className="text-lg font-semibold">Hello {userName}!</h2>
@@ -203,11 +207,12 @@ function TodoList() {
         <div className="mt-2 flex flex-col justify-center items-center">
           <div className="m-auto">
             {/* <img src={home_image} alt="login image" className="px-6" /> */}
-            <img src={forest_image} alt="login image" />
+            <img src={forest_image} alt="login image" className="opacity-90 " />
           </div>
+          {/* CODE FOR FUTURE USE */}
           {/* <Card
             size="small"
-            className="rounded-3xl border-none shadow-lg bg-blue-600 my-2"
+            className="rounded-3xl border-none shadow-lg bg-white opacity-70 my-2 absolute"
             style={{
               width: 350,
             }}
@@ -235,15 +240,32 @@ function TodoList() {
             Today's Tasks
           </h2>
           {tasks.some((task) => !task.is_completed) && (
-            <Button
-              danger
-              type="ghost"
-              icon={<DeleteOutlined style={{ fontSize: "15px" }} />}
-              className="rounded-2xl shadow-none p-0 mr-2"
-              onClick={() => setClearModalVisible(true)}
+            <Dropdown
+              menu={{
+                items: [
+                  {
+                    key: "1",
+                    icon: <FontAwesomeIcon icon={faTrashCan} />,
+                    label: "Clear All",
+                    danger: true,
+                    onClick: () => setClearModalVisible(true),
+                  },
+                ],
+              }}
+              trigger={["click"]}
+              placement="bottomRight"
             >
-              Clear All
-            </Button>
+              <Button
+                type="text"
+                icon={
+                  <FontAwesomeIcon
+                    icon={faEllipsis}
+                    style={{ fontSize: "23px" }}
+                  />
+                }
+                className="bg-transparent"
+              />
+            </Dropdown>
           )}
         </div>
       </div>
@@ -315,7 +337,7 @@ function TodoList() {
                               {/* EDIT BUTTON */}
                               <Button
                                 type="text"
-                                icon={<EditOutlined />}
+                                icon={<FontAwesomeIcon icon={faPenToSquare} />}
                                 size="small"
                                 className={`text-gray-400 hover:text-blue-500 ${
                                   task.is_priority ? "text-white" : ""
@@ -330,7 +352,7 @@ function TodoList() {
                               {/* DELETE BUTTON */}
                               <Button
                                 type="text"
-                                icon={<DeleteOutlined />}
+                                icon={<FontAwesomeIcon icon={faTrashCan} />}
                                 size="small"
                                 className={`text-red-400 ${
                                   task.is_priority ? "text-orange-300" : ""

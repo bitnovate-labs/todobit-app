@@ -26,7 +26,7 @@ function EmptyTodo() {
         image={null}
         description={
           <div className="space-y-2">
-            <p className="text-lg font-medium text-gray-800">No tasks yet</p>
+            {/* <p className="text-lg font-medium text-gray-800">No tasks yet</p> */}
             <p className="text-sm text-gray-500">
               Tap the '+' icon to get started!
             </p>

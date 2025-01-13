@@ -1,23 +1,23 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button, Typography } from "antd";
 import { motion } from "framer-motion";
 // import welcome_image from "../assets/welcomepage.png";
 import welcome_image from "../assets/welcome_image.png";
 
-const { Title, Paragraph } = Typography;
+const { Title, Paragraph, Text } = Typography;
 
 function Welcome() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-white">
+    <div className="max-h-screen flex flex-col items-center justify-center bg-white">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         className="max-w-md w-full space-y-8 text-center"
       >
-        <div className="relative">
+        <div>
           <motion.img
             src={welcome_image}
             alt="Task Management"
@@ -41,6 +41,19 @@ function Welcome() {
             >
               Get Started
             </Button>
+          </div>
+          <div className="text-center py-8 text-gray-500 mt-auto">
+            <Text className="text-xs text-gray-500">
+              © {new Date().getFullYear()}{" "}
+            </Text>
+            <Link
+              href="https://bitnovatelabs.com"
+              target="_blank"
+              className="text-xs text-gray-500 hover:text-gray-700"
+            >
+              Bitnovate Labs.
+            </Link>
+            <span className="text-xs text-gray-500"> All rights reserved.</span>
           </div>
         </div>
       </motion.div>

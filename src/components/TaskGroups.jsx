@@ -5,17 +5,19 @@ import {
   Input,
   Form,
   List,
-  Tag,
+  //   Tag,
   Typography,
   Collapse,
+  Divider,
 } from "antd";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  PlusOutlined,
-  PlayCircleOutlined,
-  CaretRightOutlined,
-  DeleteOutlined,
-  EditOutlined,
-} from "@ant-design/icons";
+  faAngleRight,
+  faCirclePlay,
+  faPenToSquare,
+  faPlus,
+  faTrashCan,
+} from "@fortawesome/free-solid-svg-icons";
 import { taskGroupsApi } from "../lib/supabase";
 import MobileHeader from "./MobileHeader";
 import EmptyGroup from "./EmptyGroup";
@@ -30,9 +32,12 @@ function TaskGroups() {
   const [groupToDelete, setGroupToDelete] = useState(null);
   const [editingItem, setEditingItem] = useState(null);
   const [itemModalVisible, setItemModalVisible] = useState(false);
+  const [newTaskModalVisible, setNewTaskModalVisible] = useState(false);
   const [form] = Form.useForm();
   const [itemForm] = Form.useForm();
+  const [newTaskForm] = Form.useForm();
 
+  // FETCH GROUPS
   useEffect(() => {
     fetchGroups();
   }, []);
@@ -46,6 +51,7 @@ function TaskGroups() {
     }
   };
 
+  // HANDLE CREATE GROUP
   const handleCreateGroup = async (values) => {
     try {
       if (editingGroup) {
@@ -76,6 +82,7 @@ function TaskGroups() {
     }
   };
 
+  // HANDLE EDIT
   const handleEdit = (group, e) => {
     e.stopPropagation();
     setEditingGroup(group);
@@ -86,6 +93,7 @@ function TaskGroups() {
     setIsModalVisible(true);
   };
 
+  // HANDLE DELETE
   const handleDelete = async () => {
     try {
       await taskGroupsApi.delete(groupToDelete.id);
@@ -97,6 +105,7 @@ function TaskGroups() {
     }
   };
 
+  // HANDLE ADD TODOS
   const handleAddToTodos = async (groupId) => {
     try {
       await taskGroupsApi.addToTodos(groupId);
@@ -109,6 +118,7 @@ function TaskGroups() {
     }
   };
 
+  // HANDLE EDIT ITEMS
   const handleEditItem = async (values) => {
     try {
       await taskGroupsApi.updateItem(
@@ -125,6 +135,7 @@ function TaskGroups() {
     }
   };
 
+  // HANDLE DELETE ITEMS
   const handleDeleteItem = async (itemId, e) => {
     e.stopPropagation();
     try {
@@ -135,18 +146,40 @@ function TaskGroups() {
     }
   };
 
+  //   HANDLE ADD TASK TO GROUP
+  const handleAddTaskToGroup = async (values) => {
+    try {
+      await taskGroupsApi.addItems(editingGroup.id, [
+        {
+          task: values.task,
+          hashtag: values.hashtag,
+        },
+      ]);
+      newTaskForm.resetFields();
+      setNewTaskModalVisible(false); // close the modal
+      setEditingGroup(null); // reset the editing group
+      fetchGroups();
+    } catch (error) {
+      console.error("Error adding task to group:", error);
+    }
+  };
+
   return (
     <div className="max-w-2xl mx-auto space-y-4 md:mt-0 pt-20">
+      {/* MOBILE HEADER */}
+      <MobileHeader title="Task Groups" />
+      {/* DESKTOP HEADER */}
+      <div className="hidden md:flex items-center justify-between h-14">
+        <h2 className="text-lg font-semibold">Task Groups</h2>
+      </div>
       {/* CREATE TASK GROUP BUTTON */}
-      <div className="fixed top-[4.5rem] left-0 right-0 bg-white z-10 md:hidden flex items-center justify-center py-4">
-        <div className="flex-1">
-          <MobileHeader title="Task Groups" />
-        </div>
+      <div className="fixed top-[3.5rem] left-0 right-0 z-10 md:hidden flex items-center justify-center py-4">
         <Button
           type="primary"
-          icon={<PlusOutlined />}
+          //   icon={<PlusOutlined />}
+          icon={<FontAwesomeIcon icon={faPlus} />}
           onClick={() => setIsModalVisible(true)}
-          className="mx-20 w-full rounded-2xl"
+          className="mx-20 w-1/2 rounded-2xl"
         >
           Create
         </Button>
@@ -159,9 +192,15 @@ function TaskGroups() {
               key={group.id}
               className="bg-white rounded-2xl shadow-md hover:shadow-md transition-shadow border-none overflow-hidden mb-2"
               expandIcon={({ isActive }) => (
-                <CaretRightOutlined
-                  rotate={isActive ? 90 : 0}
-                  className="text-gray-400"
+                <FontAwesomeIcon
+                  icon={faAngleRight}
+                  style={{
+                    fontSize: "15px",
+                    color: "#808080",
+                    marginTop: "10px",
+                    transition: "transform 0.3s",
+                    transform: isActive ? "rotate(90deg)" : "rotate(0deg)",
+                  }}
                 />
               )}
             >
@@ -170,19 +209,22 @@ function TaskGroups() {
                 header={
                   <div className="flex items-center justify-between w-full">
                     <div>
-                      <Text strong className="text-lg">
+                      {/* TASK GROUP TITLE */}
+                      <Text strong className="text-base">
                         {group.name}
                       </Text>
+                      {/* TASK GROUP DESCRIPTION */}
                       {group.description && (
-                        <Text type="secondary" className="block text-sm">
+                        <Text type="secondary" className="block text-sm mr-2">
                           {group.description}
                         </Text>
                       )}
                     </div>
+                    {/* ADD TO TODOS BUTTON */}
                     <Button
                       size="small"
                       type="primary"
-                      icon={<PlayCircleOutlined />}
+                      icon={<FontAwesomeIcon icon={faCirclePlay} />}
                       onClick={(e) => {
                         e.stopPropagation();
                         handleAddToTodos(group.id);
@@ -194,30 +236,48 @@ function TaskGroups() {
                   </div>
                 }
               >
-                <div className="flex justify-end items-center gap-2">
+                <div className="flex justify-evenly items-center gap-2 mb-2">
+                  {/* ADD TASK TO EXISTING TASK GROUP */}
                   <Button
                     size="small"
-                    type="text"
-                    icon={<EditOutlined />}
+                    type="default"
+                    icon={<FontAwesomeIcon icon={faPlus} />}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingGroup(group);
+                      newTaskForm.resetFields();
+                      setNewTaskModalVisible(true);
+                    }}
+                    className="text-xs font-bold text-green-500 px-2 border-green-500"
+                  >
+                    Add Task
+                  </Button>
+                  {/* EDIT EXISTING TASK GROUP */}
+                  <Button
+                    size="small"
+                    type="default"
+                    icon={<FontAwesomeIcon icon={faPenToSquare} />}
                     onClick={(e) => handleEdit(group, e)}
-                    className="text-gray-400"
+                    className="text-xs font-bold text-gray-400 px-2"
                   >
                     Edit Group
                   </Button>
+                  {/* DELETE ENTIRE TASK GROUP */}
                   <Button
                     size="small"
-                    type="danger"
-                    icon={<DeleteOutlined />}
+                    type="default"
+                    icon={<FontAwesomeIcon icon={faTrashCan} />}
                     onClick={(e) => {
                       e.stopPropagation();
                       setGroupToDelete(group);
                       setDeleteModalVisible(true);
                     }}
-                    className="text-red-400 hover:text-red-500"
+                    className="text-xs font-bold text-red-400 border-red-400"
                   >
                     Delete Group
                   </Button>
                 </div>
+                {/* LISTS COMPONENT */}
                 <List
                   size="small"
                   dataSource={group.items}
@@ -225,11 +285,12 @@ function TaskGroups() {
                     <List.Item
                       className="px-4"
                       actions={[
+                        // LIST EDIT BUTTON
                         <Button
                           key="edit"
                           type="text"
                           size="small"
-                          icon={<EditOutlined />}
+                          icon={<FontAwesomeIcon icon={faPenToSquare} />}
                           onClick={(e) => {
                             e.stopPropagation();
                             setEditingItem(item);
@@ -241,11 +302,12 @@ function TaskGroups() {
                           }}
                           className="text-gray-400 hover:text-blue-500"
                         />,
+                        // LIST DELETE BUTTON
                         <Button
                           key="delete"
                           type="text"
                           size="small"
-                          icon={<DeleteOutlined />}
+                          icon={<FontAwesomeIcon icon={faTrashCan} />}
                           onClick={(e) => handleDeleteItem(item.id, e)}
                           className="text-red-400 hover:text-red-500"
                         />,
@@ -253,11 +315,12 @@ function TaskGroups() {
                     >
                       <div className="flex flex-col ">
                         <Text>{item.task}</Text>
-                        {item.hashtag && (
+                        {/* LIST HASHTAGS - CODE FOR FUTURE USE */}
+                        {/* {item.hashtag && (
                           <div>
                             <Tag color="blue">#{item.hashtag}</Tag>
                           </div>
-                        )}
+                        )} */}
                       </div>
                     </List.Item>
                   )}
@@ -267,13 +330,10 @@ function TaskGroups() {
           ))}
         </div>
       ) : (
-        // <Empty
-        //   description="No task groups yet"
-        //   className="bg-white p-8 rounded-2xl shadow-md"
-        // />
         <EmptyGroup />
       )}
 
+      {/* MODAL EDIT TASK GROUP / CREATE TASK GROUP */}
       <Modal
         title={editingGroup ? "Edit Task Group" : "Create Task Group"}
         open={isModalVisible}
@@ -302,7 +362,8 @@ function TaskGroups() {
               ? (fields, { add, remove }) => (
                   <>
                     {fields.map((field, index) => (
-                      <div key={field.key} className="flex gap-2">
+                      <div key={field.key} className="flex flex-col">
+                        {/* TASK INPUT */}
                         <Form.Item
                           {...field}
                           label={index === 0 ? "Tasks" : ""}
@@ -310,31 +371,39 @@ function TaskGroups() {
                           rules={[
                             { required: true, message: "Task is required" },
                           ]}
-                          className="flex-1"
+                          className="mb-2"
                         >
                           <Input placeholder="Enter task" />
                         </Form.Item>
+                        {/* CATEGORY INPUT */}
                         <Form.Item
                           {...field}
                           label={index === 0 ? "Category" : ""}
                           name={[field.name, "hashtag"]}
+                          className="mb-2"
                         >
                           <Input placeholder="Category (optional)" />
                         </Form.Item>
+                        {/* DELETE BUTTON */}
                         <Button
-                          type="text"
+                          type="default"
                           onClick={() => remove(field.name)}
-                          className="mt-8"
+                          className=" text-red-400 border-red-400 mb-6"
+                          icon={<FontAwesomeIcon icon={faTrashCan} />}
                         >
-                          ×
+                          Delete
                         </Button>
+                        {/* DIVIDER */}
+                        {index < fields.length - 1 && (
+                          <Divider className="my-6 text-gray-700" />
+                        )}
                       </div>
                     ))}
                     <Form.Item>
                       <Button
                         type="dashed"
                         onClick={() => add()}
-                        icon={<PlusOutlined />}
+                        icon={<FontAwesomeIcon icon={faPlus} />}
                         block
                       >
                         Add Task
@@ -347,6 +416,7 @@ function TaskGroups() {
         </Form>
       </Modal>
 
+      {/* MODAL DELETE TASK GROUP WARNING */}
       <Modal
         title="Delete Task Group"
         open={deleteModalVisible}
@@ -365,6 +435,37 @@ function TaskGroups() {
         </p>
       </Modal>
 
+      {/* MODAL ADD NEW TASK TO GROUP */}
+      <Modal
+        title="Add Task to Group"
+        open={newTaskModalVisible}
+        onOk={() => newTaskForm.submit()}
+        onCancel={() => {
+          setNewTaskModalVisible(false);
+          setEditingGroup(null);
+          newTaskForm.resetFields();
+        }}
+      >
+        <Form
+          form={newTaskForm}
+          onFinish={handleAddTaskToGroup}
+          layout="vertical"
+        >
+          <Form.Item
+            name="task"
+            label="Task"
+            rules={[{ required: true, message: "Please enter a task" }]}
+          >
+            <Input placeholder="Enter task" />
+          </Form.Item>
+
+          <Form.Item name="hashtag" label="Category">
+            <Input placeholder="Category (optional)" />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* MODAL EDIT TASK */}
       <Modal
         title="Edit Task"
         open={itemModalVisible}
