@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 
+// Allows users to install your app on their homescreens
 const manifestForPlugin = {
   registerType: "autoUpdate",
   includeAssets: ["favicon.ico", "apple-touch-icon.png", "masked-icon.png"],
