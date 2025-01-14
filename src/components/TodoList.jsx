@@ -15,7 +15,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPenToSquare,
   faTrashCan,
-  faEllipsis,
+  faEllipsisVertical,
 } from "@fortawesome/free-solid-svg-icons";
 import dayjs from "dayjs";
 import MobileHeader from "./MobileHeader";
@@ -241,8 +241,8 @@ function TodoList() {
         </div>
 
         {/* Tasks remaining and Clear All Button */}
-        <div className="flex items-center justify-between w-full max-w-2xl mx-auto px-4 py-2">
-          <h2 className="text-gray-500 text-base ml-2 font-semibold">
+        <div className="flex items-center justify-between w-full max-w-2xl h-12">
+          <h2 className="text-gray-500 text-base ml-8 font-semibold">
             Today's Tasks
           </h2>
           {tasks.some((task) => !task.is_completed) && (
@@ -265,8 +265,8 @@ function TodoList() {
                 type="text"
                 icon={
                   <FontAwesomeIcon
-                    icon={faEllipsis}
-                    style={{ fontSize: "20px" }}
+                    icon={faEllipsisVertical}
+                    style={{ fontSize: "20px", marginRight: "12px" }}
                   />
                 }
                 className="bg-transparent text-gray-500"

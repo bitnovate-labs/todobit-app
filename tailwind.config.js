@@ -13,7 +13,8 @@ export default {
           high: "#216e39",
         },
         gray: {
-          DEFAULT: "#191D23", // Dark mode gray
+          DEFAULT: "#141414", // Dark mode gray
+          // DEFAULT: "#191D23", // Dark mode gray
         },
       },
     },

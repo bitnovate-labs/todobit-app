@@ -15,10 +15,12 @@ import DesktopFooter from "./DesktopFooter";
 import TaskGroups from "./TaskGroups";
 import Profile from "./Profile";
 import MobileNavigation from "./MobileNavigation";
+import { useTheme } from "../context/ThemeContext";
 
 function AppContent() {
   const location = useLocation();
   const { user } = useAuth();
+  const { isDarkMode } = useTheme(); // Access theme context
 
   useEffect(() => {
     if (user) {
@@ -65,7 +67,10 @@ function AppContent() {
           <DesktopFooter />
         </Layout>
       </Layout>
-      <Layout className="md:hidden">
+      <Layout
+        className="md:hidden"
+        // className={`md:hidden ${isDarkMode ? "bg-[#141414]" : "bg-red-500"}`}
+      >
         <Layout.Content className="p-4 pb-20">
           <Routes>
             <Route path="/" element={<TodoList />} />

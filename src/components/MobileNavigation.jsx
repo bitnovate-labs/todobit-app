@@ -137,7 +137,7 @@ function MobileNavigation() {
     <>
       <div
         className={`fixed bottom-0 left-0 right-0 border-t border-gray-200 h-28 md:hidden z-50 px-4 ${
-          isDarkMode ? "bg-gray border-gray-800" : "bg-white"
+          isDarkMode ? "bg-gray border-none" : "bg-white"
         }`}
       >
         <div className="relative max-w-md mx-auto h-full">

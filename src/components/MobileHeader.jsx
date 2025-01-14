@@ -77,7 +77,7 @@ function MobileHeader({ title, onDeleteAll }) {
   return (
     <div
       className={`h-14 flex items-center justify-between px-8 pt-10 pb-8 md:hidden fixed top-0 left-0 right-0  z-20 border-b border-gray-200 ${
-        isDarkMode ? "bg-gray border-gray-800" : "bg-white"
+        isDarkMode ? "bg-gray border-none" : "bg-white"
       }`}
     >
       {/* LEFT HAMBURGER MENU */}

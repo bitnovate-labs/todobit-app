@@ -4,12 +4,14 @@ import { Form, Input, Button, Typography, message } from "antd";
 import { UserOutlined, LockOutlined, MailOutlined } from "@ant-design/icons";
 import { supabase } from "../lib/supabase";
 import reg_image from "../assets/reg_img.png";
+import { useTheme } from "../context/ThemeContext";
 
 const { Title, Text } = Typography;
 
 function Register() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const { isDarkMode } = useTheme();
 
   const handleRegister = async (values) => {
     try {
@@ -36,7 +38,13 @@ function Register() {
   };
 
   return (
-    <div className="h-screen bg-gradient-to-b from-blue-50 to-white grid grid-rows-3">
+    <div
+      className={`h-screen overflow-hidden grid grid-rows-2 ${
+        isDarkMode
+          ? "bg-gray"
+          : "bg-gradient-to-b from-blue-700 via-blue-200 to-white"
+      }`}
+    >
       <div className="m-auto">
         <img
           src={reg_image}
@@ -44,10 +52,28 @@ function Register() {
           className="opacity-70 px-20"
         />
       </div>
-      <div className="max-w-md w-full space-y-8 bg-white p-8">
-        <div className="text-center mt-6">
-          <Title level={2}>Create Account</Title>
-          <Text className="text-gray-600">Get started with Dobit</Text>
+      <div
+        className={`max-w-md space-y-2 rounded-t-3xl p-8 ${
+          isDarkMode
+            ? "bg-gradient-to-b from-blue-700 via-blue-500 via-50% to-white"
+            : "bg-white"
+        }`}
+      >
+        <div className="flex flex-col text-center mt-4">
+          <span
+            className={`text-3xl font-black ${
+              isDarkMode ? "text-gray-100" : "text-gray-700 "
+            }`}
+          >
+            Create Account
+          </span>
+          <Text
+            className={`my-2 ${
+              isDarkMode ? "text-gray-100" : "text-gray-600 "
+            }`}
+          >
+            Get started with Dobit
+          </Text>
         </div>
 
         <Form

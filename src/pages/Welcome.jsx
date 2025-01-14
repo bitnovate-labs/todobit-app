@@ -3,14 +3,22 @@ import { Button, Typography } from "antd";
 import { motion } from "framer-motion";
 // import welcome_image from "../assets/welcomepage.png";
 import welcome_image from "../assets/welcome_image.png";
+import { useTheme } from "../context/ThemeContext";
 
 const { Title, Paragraph, Text } = Typography;
 
 function Welcome() {
   const navigate = useNavigate();
+  const { isDarkMode } = useTheme();
 
   return (
-    <div className="h-screen flex flex-col items-center justify-center bg-white">
+    <div
+      className={`h-screen overflow-hidden flex flex-col items-center justify-center ${
+        isDarkMode
+          ? "bg-gray"
+          : "bg-gradient-to-b from-blue-700 via-blue-200 via-60% to-white"
+      }`}
+    >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -24,15 +32,19 @@ function Welcome() {
             initial={{ scale: 0.9 }}
             animate={{ scale: 1 }}
             transition={{ duration: 0.5 }}
-            className="w-full h-auto max-h-[50vh] object-contain"
+            className="w-full max-h-[50vh] object-contain"
           />
           <div className="space-y-4">
             <Title level={1}>
-              <span className="text-gray-700 text-4xl font-black">
+              <span
+                className={`text-4xl font-black ${
+                  isDarkMode ? "text-gray-300" : "text-gray-700 "
+                }`}
+              >
                 Welcome to Dobit
               </span>
             </Title>
-            <Paragraph className="text-lg text-gray-400 mx-10">
+            <Paragraph className="text-base text-gray-500 mx-10">
               A todo-habit tracking app to over <br /> 10 million influencers
               around the global of the world.
             </Paragraph>

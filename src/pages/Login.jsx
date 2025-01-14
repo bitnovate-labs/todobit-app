@@ -4,13 +4,16 @@ import { Form, Input, Button, Typography, message } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import { supabase } from "../lib/supabase";
 import login_image from "../assets/login_img.png";
+import { useTheme } from "../context/ThemeContext";
 
 const { Title, Text } = Typography;
 
 function Login() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const { isDarkMode } = useTheme();
 
+  // HANDLE LOGIN
   const handleLogin = async (values) => {
     try {
       setLoading(true);
@@ -29,18 +32,38 @@ function Login() {
   };
 
   return (
-    <div className="h-screen bg-gradient-to-b from-blue-50 to-white grid grid-rows-3">
+    <div
+      className={`h-dvh overflow-hidden grid grid-rows-2 ${
+        isDarkMode
+          ? "bg-gray"
+          : "bg-gradient-to-b from-blue-700 via-blue-200 to-white"
+      }`}
+    >
       <div className="m-auto">
         <img src={login_image} alt="login image" className="opacity-70 px-20" />
       </div>
-      <div className="max-w-md w-screen space-y-8 bg-white p-8">
+      <div
+        className={`max-w-md w-screen space-y-8 rounded-t-3xl p-8 ${
+          isDarkMode
+            ? "bg-gradient-to-b from-blue-700 via-blue-500 via-50% to-white"
+            : "bg-white"
+        }`}
+      >
         <div className="text-center mt-6">
           <Title level={2}>
-            <span className="text-gray-700 text-3xl font-black">
+            <span
+              className={`text-3xl font-black ${
+                isDarkMode ? "text-gray-100" : "text-gray-700 "
+              }`}
+            >
               Welcome Back
             </span>
           </Title>
-          <Text className="text-gray-600">Sign in to continue to Dobit</Text>
+          <Text
+            className={`${isDarkMode ? "text-gray-100" : "text-gray-600 "}`}
+          >
+            Sign in to continue to Dobit
+          </Text>
         </div>
 
         <Form
@@ -86,7 +109,7 @@ function Login() {
         <div className="text-center">
           <Text className="text-gray-600">
             Don&apos;t have an account?{" "}
-            <Link to="/register" className="text-blue-600 hover:text-blue-700">
+            <Link to="/register" className="text-blue-600">
               Sign up
             </Link>
           </Text>

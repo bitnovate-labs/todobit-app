@@ -21,6 +21,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../context/AuthContext";
 import MobileHeader from "./MobileHeader";
+import { useTheme } from "../context/ThemeContext";
 
 const { Text } = Typography;
 
@@ -31,6 +32,7 @@ function Profile() {
   const [passwordModalVisible, setPasswordModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef(null);
+  const { isDarkMode } = useTheme(); // Access theme context
 
   const handleUploadClick = () => {
     fileInputRef.current?.click();
@@ -161,8 +163,12 @@ function Profile() {
       </div>
       <MobileHeader title="Profile" />
 
-      <Card className="shadow-sm pt-24 bg-transparent dark:border-none">
-        <div className="flex flex-col items-center space-y-4">
+      <Card
+        className={`shadow-sm pt-24 bg-transparent ${
+          isDarkMode ? "border-none" : ""
+        }`}
+      >
+        <div className="flex flex-col items-center space-y-4 mb-8">
           <div className="relative">
             <Avatar
               size={100}
@@ -193,12 +199,15 @@ function Profile() {
         </div>
       </Card>
 
-      <div className="space-y-2">
+      {/* BUTTONS */}
+      <div className={`space-y-2`}>
         {/* EDIT PROFILE BUTTON */}
         <Button
           block
           onClick={() => setEditModalVisible(true)}
-          className="text-left h-14 flex items-center justify-between rounded-2xl border-none shadow-md"
+          className={`text-left h-14 flex items-center justify-between rounded-2xl shadow-md ${
+            isDarkMode ? "bg-gray" : "bg-white border-none"
+          }`}
         >
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-teal-100 rounded-full flex items-center justify-center">
@@ -213,7 +222,9 @@ function Profile() {
         <Button
           block
           onClick={() => setPasswordModalVisible(true)}
-          className="text-left h-14 flex items-center justify-between rounded-2xl border-none shadow-md"
+          className={`text-left h-14 flex items-center justify-between rounded-2xl shadow-md ${
+            isDarkMode ? "bg-gray" : "bg-white border-none"
+          }`}
         >
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
@@ -228,7 +239,9 @@ function Profile() {
         <Button
           block
           onClick={() => navigate("/settings")}
-          className="text-left h-14 flex items-center justify-between rounded-2xl border-none shadow-md"
+          className={`text-left h-14 flex items-center justify-between rounded-2xl shadow-md ${
+            isDarkMode ? "bg-gray" : "bg-white border-none"
+          }`}
         >
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
@@ -243,8 +256,9 @@ function Profile() {
         <Button
           block
           onClick={handleLogout}
-          className="text-left h-14 flex items-center justify-between rounded-2xl border-none shadow-md"
-          danger
+          className={`text-left h-14 flex items-center justify-between rounded-2xl shadow-md ${
+            isDarkMode ? "bg-gray text-red-500 " : "bg-white"
+          }`}
         >
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
@@ -252,7 +266,7 @@ function Profile() {
             </div>
             <span className="text-base">Logout</span>
           </div>
-          <RightOutlined className="text-gray-400" />
+          {/* <RightOutlined className="text-gray-400" /> */}
         </Button>
       </div>
 

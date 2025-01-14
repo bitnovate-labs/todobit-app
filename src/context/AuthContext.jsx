@@ -16,48 +16,69 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     // Check active sessions (auth state) and sets the user
+    // supabase.auth.getSession().then(({ data: { session } }) => {
+    //   setUser(session?.user ?? null);
+    //   if (!session?.user) {
+    //     // Only redirect to /login if not already there
+    //     if (
+    //       location.pathname !== "/login" &&
+    //       location.pathname !== "/welcome"
+    //     ) {
+    //       navigate("/login");
+    //     }
+    //   }
+    // });
+    // setLoading(false);
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
-      if (!session?.user) {
-        // Only redirect to /login if not already there
-        if (
-          location.pathname !== "/login" &&
-          location.pathname !== "/welcome"
-        ) {
-          navigate("/login");
-        }
-      }
+      setLoading(false);
     });
-    setLoading(false);
 
     // Listen for changes on auth state
+    // const {
+    //   data: { subscription },
+    // } = supabase.auth.onAuthStateChange((_event, session) => {
+    //   setUser(session?.user ?? null);
+    //   if (!session?.user) {
+    //     // Only redirect to /login if not already there
+    //     if (
+    //       location.pathname !== "/login" &&
+    //       location.pathname !== "/welcome"
+    //     ) {
+    //       navigate("/login");
+    //     }
+    //   }
+
+    //   // Check if this is a new user (sign up)
+    //   if (
+    //     _event === "SIGNED_IN" &&
+    //     session?.user?.created_at === session?.user?.last_sign_in_at
+    //   ) {
+    //     // Clear any existing completed tasks for the new user
+    //     clearCompletedTasks(session.user.id).catch(console.error);
+    //   }
+    // });
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
-      if (!session?.user) {
-        // Only redirect to /login if not already there
-        if (
-          location.pathname !== "/login" &&
-          location.pathname !== "/welcome"
-        ) {
-          navigate("/login");
-        }
-      }
-
-      // Check if this is a new user (sign up)
-      if (
-        _event === "SIGNED_IN" &&
-        session?.user?.created_at === session?.user?.last_sign_in_at
-      ) {
-        // Clear any existing completed tasks for the new user
-        clearCompletedTasks(session.user.id).catch(console.error);
-      }
     });
 
     return () => subscription.unsubscribe();
   }, [navigate, location.pathname]);
 
+  // SIGN UP
+  const signUp = async (email, password) => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+    if (error) throw error;
+    return data;
+  };
+
+  // CLEAR COMPLETED TASKS
   const clearCompletedTasks = async (userId) => {
     try {
       const { error } = await supabase.rpc("clear_user_completed_todos", {
@@ -92,11 +113,14 @@ export function AuthProvider({ children }) {
     );
   }
 
-  return (
-    <AuthContext.Provider value={{ user, refreshUser }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  const value = {
+    signUp,
+    user,
+    loading,
+    refreshUser,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export const useAuth = () => {
