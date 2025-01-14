@@ -12,6 +12,9 @@ export default {
           mediumHigh: "#30a14e",
           high: "#216e39",
         },
+        gray: {
+          DEFAULT: "#191D23", // Dark mode gray
+        },
       },
     },
   },

@@ -24,6 +24,7 @@ import { todoApi, subscribeToTodos } from "../lib/supabase";
 import EmptyState from "./EmptyTodo";
 import forest_image from "../assets/tree.jpg";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 
 const { Text } = Typography;
 
@@ -38,6 +39,7 @@ function TodoList() {
   );
   const [clearModalVisible, setClearModalVisible] = useState(false);
   const { user } = useAuth();
+  const { isDarkMode } = useTheme(); // Access theme context
 
   // Get user's name from metadata or email
   const userName =
@@ -182,7 +184,11 @@ function TodoList() {
         <h2 className="text-lg font-semibold">Homepage</h2>
       </div>
 
-      <div className="fixed top-[3.5rem] left-0 right-0 bg-white z-10 md:relative md:top-0">
+      <div
+        className={`fixed top-[3.5rem] left-0 right-0 z-10 md:relative md:top-0 ${
+          isDarkMode ? "bg-gray" : "bg-white"
+        }`}
+      >
         {/* MOBILE HEADER */}
         <MobileHeader title="Homepage" />
         <div className="flex items-center gap-3 px-4 pt-4 pb-2 md:pt-4">

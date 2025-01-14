@@ -8,6 +8,7 @@ import PropTypes from "prop-types";
 import { supabase } from "../lib/supabase";
 import { DeleteOutlined } from "@ant-design/icons";
 import { capitalize } from "../utils/stringUtils";
+import { useTheme } from "../context/ThemeContext";
 
 const { Text } = Typography;
 
@@ -32,6 +33,7 @@ function Heatmap({ data = [], hashtag, onDeleteCategory }) {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [selectedDayTasks, setSelectedDayTasks] = useState([]);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const { isDarkMode } = useTheme(); // Access theme context
 
   // HEATMAP DATA
   const heatmapData = useMemo(() => {
@@ -86,7 +88,8 @@ function Heatmap({ data = [], hashtag, onDeleteCategory }) {
 
   // GRID CELL COLOR FILLINGS
   const getColorClass = (count) => {
-    if (count === 0) return "bg-activityColor-none";
+    if (count === 0)
+      return `${isDarkMode ? "bg-[#161B22]" : "bg-activityColor-none"}`;
     if (count === 1) return "bg-activityColor-low";
     if (count === 2) return "bg-activityColor-mediumLow";
     if (count === 3) return "bg-activityColor-mediumHigh";
@@ -127,7 +130,9 @@ function Heatmap({ data = [], hashtag, onDeleteCategory }) {
 
   return (
     <div
-      className="w-full bg-white rounded-2xl p-6 shadow-md relative hover:shadow-md transition-shadow"
+      className={`w-full rounded-2xl p-6 shadow-md relative hover:shadow-md transition-shadow ${
+        isDarkMode ? "bg-none border border-gray-600" : "bg-white"
+      }`}
       onClick={(e) => {
         if (
           e.target === e.currentTarget ||

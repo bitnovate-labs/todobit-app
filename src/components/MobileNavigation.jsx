@@ -20,6 +20,7 @@ import {
   faLayerGroup,
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
+import { useTheme } from "../context/ThemeContext";
 
 const { Text } = Typography;
 
@@ -32,6 +33,7 @@ function MobileNavigation() {
   const [isPriority, setIsPriority] = useState(false);
   const [tasks, setTasks] = useState([]);
   const [categoryOptions, setCategoryOptions] = useState([]);
+  const { isDarkMode } = useTheme(); // Access theme context
 
   // CODE FOR POTENTIAL FUTURE USE (MAY WANT TO ADD IN PREDEFINED CATEGORIES)
   // const [categoryOptions, setCategoryOptions] = useState(defaultCategories);
@@ -133,7 +135,11 @@ function MobileNavigation() {
 
   return (
     <>
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 h-28 md:hidden z-50 px-4">
+      <div
+        className={`fixed bottom-0 left-0 right-0 border-t border-gray-200 h-28 md:hidden z-50 px-4 ${
+          isDarkMode ? "bg-gray border-gray-800" : "bg-white"
+        }`}
+      >
         <div className="relative max-w-md mx-auto h-full">
           <div className="absolute inset-x-0 h-full grid grid-cols-5 items-center">
             <div className="flex flex-col items-center">
@@ -141,6 +147,8 @@ function MobileNavigation() {
               <Button
                 className={`flex items-center justify-center border-none ${
                   location.pathname === "/" ? "text-blue-500" : "text-gray-500"
+                } ${
+                  isDarkMode ? "bg-gray shadow-none" : "bg-white"
                 } focus:outline-none`}
                 icon={
                   <FontAwesomeIcon icon={faHome} style={{ fontSize: "26px" }} />
@@ -155,6 +163,8 @@ function MobileNavigation() {
                   location.pathname === "/groups"
                     ? "text-blue-500"
                     : "text-gray-500"
+                } ${
+                  isDarkMode ? "bg-gray shadow-none" : "bg-white"
                 } focus:outline-none`}
                 icon={
                   <FontAwesomeIcon
@@ -188,6 +198,8 @@ function MobileNavigation() {
                   location.pathname === "/stats"
                     ? "text-blue-500"
                     : "text-gray-500"
+                } ${
+                  isDarkMode ? "bg-gray shadow-none" : "bg-white"
                 } focus:outline-none`}
                 icon={
                   <FontAwesomeIcon
@@ -205,6 +217,8 @@ function MobileNavigation() {
                   location.pathname === "/profile"
                     ? "text-blue-500"
                     : "text-gray-500"
+                } ${
+                  isDarkMode ? "bg-gray shadow-none" : "bg-white"
                 } focus:outline-none`}
                 icon={
                   <FontAwesomeIcon icon={faUser} style={{ fontSize: "26px" }} />

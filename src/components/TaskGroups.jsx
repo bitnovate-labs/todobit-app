@@ -21,6 +21,7 @@ import {
 import { taskGroupsApi } from "../lib/supabase";
 import MobileHeader from "./MobileHeader";
 import EmptyGroup from "./EmptyGroup";
+import { useTheme } from "../context/ThemeContext";
 
 const { Text } = Typography;
 
@@ -36,6 +37,7 @@ function TaskGroups() {
   const [form] = Form.useForm();
   const [itemForm] = Form.useForm();
   const [newTaskForm] = Form.useForm();
+  const { isDarkMode } = useTheme(); // Access theme context
 
   // FETCH GROUPS
   useEffect(() => {
@@ -190,7 +192,9 @@ function TaskGroups() {
           {groups.map((group) => (
             <Collapse
               key={group.id}
-              className="bg-white rounded-2xl shadow-md hover:shadow-md transition-shadow border-none overflow-hidden mb-2"
+              className={`rounded-2xl shadow-md hover:shadow-md transition-shadow border-none overflow-hidden mb-2 ${
+                isDarkMode ? "bg-gray" : "bg-white"
+              }`}
               expandIcon={({ isActive }) => (
                 <FontAwesomeIcon
                   icon={faAngleRight}

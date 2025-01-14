@@ -161,7 +161,7 @@ function Profile() {
       </div>
       <MobileHeader title="Profile" />
 
-      <Card className="shadow-sm pt-24 bg-transparent">
+      <Card className="shadow-sm pt-24 bg-transparent dark:border-none">
         <div className="flex flex-col items-center space-y-4">
           <div className="relative">
             <Avatar

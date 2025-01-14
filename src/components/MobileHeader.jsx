@@ -1,18 +1,23 @@
 import { Button, Dropdown, Modal } from "antd";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBars,
+  faChevronLeft,
   faCircleCheck,
   faEllipsisVertical,
   faTrashCan,
 } from "@fortawesome/free-solid-svg-icons";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabase";
+import { useTheme } from "../context/ThemeContext";
 
 function MobileHeader({ title, onDeleteAll }) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isSettingsPage = location.pathname === "/settings";
   const { user } = useAuth();
+  const { isDarkMode } = useTheme(); // Access theme context
 
   // LEFT MENU ITEMS (HAMBURGER ICON)
   const menuItems = [
@@ -70,26 +75,43 @@ function MobileHeader({ title, onDeleteAll }) {
   };
 
   return (
-    <div className="h-14 flex items-center justify-between px-8 pt-10 pb-8 md:hidden fixed top-0 left-0 right-0 bg-white z-20 border-b border-gray-200">
+    <div
+      className={`h-14 flex items-center justify-between px-8 pt-10 pb-8 md:hidden fixed top-0 left-0 right-0  z-20 border-b border-gray-200 ${
+        isDarkMode ? "bg-gray border-gray-800" : "bg-white"
+      }`}
+    >
       {/* LEFT HAMBURGER MENU */}
       <Dropdown
         menu={{ items: menuItems }}
         placement="bottomLeft"
         trigger={["click"]}
       >
-        <Button
-          icon={<FontAwesomeIcon icon={faBars} style={{ fontSize: "20px" }} />}
-          type="text"
-          className="hover:bg-gray-100"
-          style={{
-            paddingRight: "24px",
-          }}
-        />
+        {isSettingsPage ? (
+          <Button
+            type="text"
+            icon={
+              <FontAwesomeIcon
+                icon={faChevronLeft}
+                style={{ fontSize: "20px" }}
+              />
+            }
+            onClick={() => navigate(-1)}
+            className="text-gray-600"
+          />
+        ) : (
+          <Button
+            type="text"
+            icon={
+              <FontAwesomeIcon icon={faBars} style={{ fontSize: "20px" }} />
+            }
+            className="text-gray-600"
+          />
+        )}
       </Dropdown>
       <h2 className="text-lg font-semibold">{title}</h2>
       <div className="w-8" /> {/* Spacer for alignment */}
       {/* RIGHT ELLIPSIS MENU (FOR COMPLETED TASKS) */}
-      <div className="fixed top-2 right-0 z-10 bg-white md:hidden">
+      <div className="fixed top-2 right-0 z-10 bg-transparent md:hidden">
         <div className="flex items-center px-2 h-16">
           {title === "Completed Tasks" && (
             <Dropdown

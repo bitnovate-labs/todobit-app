@@ -1,47 +1,32 @@
-import { Button, Card, Switch, Typography } from "antd";
-import { useNavigate } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
+import { Card, Switch, Typography } from "antd";
+import { useTheme } from "../context/ThemeContext";
 import MobileHeader from "./MobileHeader";
 
 const { Text, Link } = Typography;
 
-const settings = [
-  {
-    title: "Dark Mode",
-    description: "Toggle dark mode theme",
-    action: <Switch />,
-  },
-  {
-    title: "Push Notifications",
-    description: "Receive task reminders",
-    action: <Switch />,
-  },
-];
-
 function Settings() {
-  const navigate = useNavigate();
+  const { isDarkMode, toggleTheme } = useTheme();
+
+  const settings = [
+    {
+      title: "Dark Mode",
+      description: "Toggle dark mode theme",
+      action: <Switch checked={isDarkMode} onChange={toggleTheme} />,
+    },
+    {
+      title: "Push Notifications",
+      description: "Receive task reminders",
+      action: <Switch />,
+    },
+  ];
 
   return (
     <div className="max-w-2xl mx-auto md:mt-0 min-h-[calc(100vh-7rem)] flex flex-col">
+      {/* MOBILE HEADER */}
+      <MobileHeader title="Settings" />
+      {/* DESKTOP HEADER */}
       <div className="hidden md:flex items-center justify-center h-14">
         <h2 className="text-lg font-semibold">Settings</h2>
-      </div>
-      <MobileHeader title="Settings" />
-      <div className="md:hidden flex items-center justify-between h-14 pt-10 pb-8 fixed top-0 left-0 right-0 bg-white z-20 border-b border-gray-200 px-4">
-        <Button
-          type="text"
-          icon={
-            <FontAwesomeIcon
-              icon={faChevronLeft}
-              style={{ fontSize: "20px" }}
-            />
-          }
-          onClick={() => navigate(-1)}
-          className="text-gray-600"
-        />
-        <h2 className="text-lg font-semibold">Settings</h2>
-        <div className="w-8" /> {/* Spacer for alignment */}
       </div>
 
       {/* CONTENTS */}
