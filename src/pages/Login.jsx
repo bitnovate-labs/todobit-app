@@ -35,8 +35,12 @@ function Login() {
       </div>
       <div className="max-w-md w-screen space-y-8 bg-white p-8">
         <div className="text-center mt-6">
-          <Title level={2}>Welcome Back</Title>
-          <Text className="text-gray-600">Sign in to continue to Go Task</Text>
+          <Title level={2}>
+            <span className="text-gray-700 text-3xl font-black">
+              Welcome Back
+            </span>
+          </Title>
+          <Text className="text-gray-600">Sign in to continue to Dobit</Text>
         </div>
 
         <Form
@@ -81,7 +85,7 @@ function Login() {
 
         <div className="text-center">
           <Text className="text-gray-600">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <Link to="/register" className="text-blue-600 hover:text-blue-700">
               Sign up
             </Link>

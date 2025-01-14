@@ -1,28 +1,49 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { Spin, message } from "antd";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const AuthContext = createContext({});
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const navigate = useNavigate();
+  const location = useLocation();
   const [loading, setLoading] = useState(true);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const refreshUser = () => setRefreshTrigger((prev) => prev + 1);
 
   useEffect(() => {
-    // Check active sessions and sets the user
+    // Check active sessions (auth state) and sets the user
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
-      setLoading(false);
+      if (!session?.user) {
+        // Only redirect to /login if not already there
+        if (
+          location.pathname !== "/login" &&
+          location.pathname !== "/welcome"
+        ) {
+          navigate("/login");
+        }
+      }
     });
+    setLoading(false);
 
     // Listen for changes on auth state
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+      if (!session?.user) {
+        // Only redirect to /login if not already there
+        if (
+          location.pathname !== "/login" &&
+          location.pathname !== "/welcome"
+        ) {
+          navigate("/login");
+        }
+      }
 
       // Check if this is a new user (sign up)
       if (
@@ -35,7 +56,7 @@ export function AuthProvider({ children }) {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [navigate, location.pathname]);
 
   const clearCompletedTasks = async (userId) => {
     try {

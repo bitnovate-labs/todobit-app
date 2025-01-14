@@ -10,24 +10,27 @@ function Welcome() {
   const navigate = useNavigate();
 
   return (
-    <div className="max-h-screen flex flex-col items-center justify-center bg-white">
+    <div className="h-screen flex flex-col items-center justify-center bg-white">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="max-w-md w-full space-y-8 text-center"
+        className="w-full flex-1 flex items-center justify-center"
       >
-        <div>
+        <div className="max-w-md w-full text-center relative">
           <motion.img
             src={welcome_image}
             alt="Task Management"
             initial={{ scale: 0.9 }}
             animate={{ scale: 1 }}
             transition={{ duration: 0.5 }}
+            className="w-full h-auto max-h-[50vh] object-contain"
           />
-          <div className="space-y-4 absolute bottom-40 left-0 right-0">
-            <Title level={1} className="text-4xl font-black text-gray-900">
-              Welcome to Dobit
+          <div className="space-y-4">
+            <Title level={1}>
+              <span className="text-gray-700 text-4xl font-black">
+                Welcome to Dobit
+              </span>
             </Title>
             <Paragraph className="text-lg text-gray-400 mx-10">
               A todo-habit tracking app to over <br /> 10 million influencers
@@ -36,27 +39,31 @@ function Welcome() {
             <Button
               type="primary"
               size="large"
-              className="text-lg font-medium rounded-3xl px-32"
+              className="text-lg font-medium rounded-3xl px-28"
               onClick={() => navigate("/login")}
             >
               Get Started
             </Button>
           </div>
-          <div className="text-center py-8 text-gray-500 mt-auto">
-            <Text className="text-xs text-gray-500">
-              © {new Date().getFullYear()}{" "}
-            </Text>
-            <Link
-              href="https://bitnovatelabs.com"
-              target="_blank"
-              className="text-xs text-gray-500 hover:text-gray-700"
-            >
-              Bitnovate Labs.
-            </Link>
-            <span className="text-xs text-gray-500"> All rights reserved.</span>
-          </div>
         </div>
       </motion.div>
+
+      {/* FOOTER */}
+      <div className="w-full py-6 px-4">
+        <div className="max-w-md mx-auto flex items-center justify-center gap-1">
+          <Text className="text-xs text-gray-500">
+            © {new Date().getFullYear()}{" "}
+          </Text>
+          <Link
+            href="https://bitnovatelabs.com"
+            target="_blank"
+            className="text-xs text-gray-500 hover:text-gray-700"
+          >
+            Bitnovate Labs.
+          </Link>
+          <span className="text-xs text-gray-500"> All rights reserved.</span>
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,12 +1,20 @@
 import { useMemo, useState, useEffect } from "react";
 import { Drawer, List, Button, Modal, Typography } from "antd";
 import dayjs from "dayjs";
+import weekday from "dayjs/plugin/weekday";
+import weekOfYear from "dayjs/plugin/weekOfYear";
+import isoWeek from "dayjs/plugin/isoWeek";
 import PropTypes from "prop-types";
 import { supabase } from "../lib/supabase";
 import { DeleteOutlined } from "@ant-design/icons";
 import { capitalize } from "../utils/stringUtils";
 
 const { Text } = Typography;
+
+// Dayjs extensions
+dayjs.extend(weekday);
+dayjs.extend(weekOfYear);
+dayjs.extend(isoWeek);
 
 const DAYS_OF_WEEK = [
   { short: "Mon", label: "Mon" },
@@ -25,57 +33,58 @@ function Heatmap({ data = [], hashtag, onDeleteCategory }) {
   const [selectedDayTasks, setSelectedDayTasks] = useState([]);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
+  // HEATMAP DATA
   const heatmapData = useMemo(() => {
-    // Find the most active day for the category
-    const maxActivityDay = data.reduce(
-      (max, curr) => (curr.count > (max?.count || 0) ? curr : max),
-      null
-    );
-
     const today = dayjs();
-    const endDate = today.endOf("week").add(1, "week");
-    const startDate = endDate
-      .subtract(WEEKS_TO_SHOW - 1, "week")
-      .startOf("week");
+    console.log("Today:", today.format("YYYY-MM-DD"));
 
-    // If we have activity, set it as selected initially
-    if (maxActivityDay && !selectedDate) {
-      setSelectedDate(dayjs(maxActivityDay.date));
-    }
+    // Start from the beginning of the current year
+    const startDate = dayjs().startOf("year");
+    console.log("Start of year:", startDate.format("YYYY-MM-DD"));
 
     // Create empty grid
     const grid = DAYS_OF_WEEK.map((day) => {
       return Array(WEEKS_TO_SHOW)
         .fill(0)
-        .map((_, weekIndex) => ({
-          date: startDate
+        .map((_, weekIndex) => {
+          const cellDate = startDate
             .add(weekIndex, "week")
-            .day(DAYS_OF_WEEK.findIndex((d) => d.short === day.short) + 1),
-          count: 0,
-        }));
+            .day(DAYS_OF_WEEK.findIndex((d) => d.short === day.short) + 1);
+          return {
+            date: cellDate,
+            count: 0,
+          };
+        });
     });
 
     // Fill in data
     data.forEach((item) => {
       const date = dayjs(item.date);
-      const weekIndex = Math.floor(date.diff(startDate, "day") / 7);
+
+      // Get the week of the year (0-based)
+      const weekOfYear = date.week() - 1;
+
+      // Get the day of the week (Monday = 0, Sunday = 6)
       const dayIndex = DAYS_OF_WEEK.findIndex(
         (d) => d.short === date.format("ddd")
       );
 
-      if (
-        weekIndex >= 0 &&
-        weekIndex < WEEKS_TO_SHOW &&
-        dayIndex >= 0 &&
-        date.isBefore(endDate)
-      ) {
-        grid[dayIndex][weekIndex].count = item.count;
+      console.log("Processing task:", {
+        date: date.format("YYYY-MM-DD"),
+        weekOfYear,
+        dayIndex,
+        count: item.count,
+      });
+
+      if (weekOfYear >= 0 && weekOfYear < WEEKS_TO_SHOW && dayIndex >= 0) {
+        grid[dayIndex][weekOfYear].count = item.count;
       }
     });
 
     return grid;
-  }, [data, selectedDate]);
+  }, [data]);
 
+  // GRID CELL COLOR FILLINGS
   const getColorClass = (count) => {
     if (count === 0) return "bg-activityColor-none";
     if (count === 1) return "bg-activityColor-low";
@@ -85,10 +94,11 @@ function Heatmap({ data = [], hashtag, onDeleteCategory }) {
     return "bg-activityColor-high";
   };
 
+  // FETCH TASKS FOR DATE
   const fetchTasksForDate = useMemo(
     () => async (date) => {
       try {
-        const { data: tasks } = await supabase
+        const { data: tasks, error } = await supabase
           .from("todos")
           .select("*")
           .eq("hashtag", hashtag)
@@ -97,9 +107,13 @@ function Heatmap({ data = [], hashtag, onDeleteCategory }) {
           .lte("completed_at", date.endOf("day").toISOString())
           .order("completed_at", { ascending: false });
 
+        if (error) throw error;
+
+        console.log("Fetched tasks:", tasks);
         setSelectedDayTasks(tasks || []);
       } catch (error) {
         console.error("Error fetching day tasks:", error);
+        setSelectedDayTasks([]);
       }
     },
     [hashtag]
@@ -134,8 +148,10 @@ function Heatmap({ data = [], hashtag, onDeleteCategory }) {
         <h3 className="text-lg font-semibold">{capitalize(hashtag)}</h3>
         <Text className="text-gray-500">{dayjs().format("MMMM YYYY")}</Text>
       </div>
+
       <div className="overflow-hidden heatmap-content">
         <div className="flex gap-2 overflow-x-auto py-2">
+          {/* DAY LABELS */}
           <div className="flex flex-col gap-1">
             {DAYS_OF_WEEK.map((day) => (
               <div
@@ -148,37 +164,57 @@ function Heatmap({ data = [], hashtag, onDeleteCategory }) {
             ))}
           </div>
 
+          {/* GRID */}
           <div className="flex-1">
             {DAYS_OF_WEEK.map((day, dayIndex) => (
               <div key={day.short} className="flex gap-1 mb-1">
-                {[...heatmapData[dayIndex]].reverse().map((cell, weekIndex) => (
-                  <div
-                    key={`${day.short}-${weekIndex}`}
-                    className={`w-4 h-4 rounded-sm ${getColorClass(
-                      cell.count
-                    )}  ${
-                      dayjs().isSame(cell.date.add(1, "week"), "day")
-                        ? "ring-2 ring-green-500"
-                        : ""
-                    } transition-colors`}
-                    title={`${cell.date.format("MMM D")}: ${cell.count} tasks`}
-                  />
-                ))}
+                {heatmapData[dayIndex].map((cell, weekIndex) => {
+                  // console.log("Rendering cell:", {
+                  //   day: day.short,
+                  //   week: weekIndex,
+                  //   count: cell.count,
+                  //   date: cell.date.format("YYYY-MM-DD"),
+                  // });
+
+                  return (
+                    <div
+                      key={`${day.short}-${weekIndex}`}
+                      className={`w-4 h-4 rounded-sm ${getColorClass(
+                        cell.count
+                      )}  ${
+                        dayjs().isSame(cell.date, "day")
+                          ? "ring-2 ring-green-500"
+                          : ""
+                      } cursor-pointer`}
+                      title={`${cell.date.format("MMM D")}: ${
+                        cell.count
+                      } tasks`}
+                      onClick={() => {
+                        setSelectedDate(cell.date);
+                        setDrawerVisible(true);
+                      }}
+                    />
+                  );
+                })}
               </div>
             ))}
           </div>
         </div>
       </div>
 
+      {/* DRAWER */}
       <Drawer
         title={`${capitalize(hashtag)} - ${selectedDate?.format(
           "MMM D, YYYY"
         )}`}
         placement="right"
-        className="heatmap-drawer"
         open={drawerVisible}
+        className="heatmap-drawer"
         style={{ padding: "10px 0" }}
-        onClose={() => setDrawerVisible(false)}
+        onClose={() => {
+          setDrawerVisible(false);
+          setSelectedDate(null);
+        }}
         width="100%"
         footer={
           <div className="p-4">

@@ -260,10 +260,10 @@ function TodoList() {
                 icon={
                   <FontAwesomeIcon
                     icon={faEllipsis}
-                    style={{ fontSize: "23px" }}
+                    style={{ fontSize: "20px" }}
                   />
                 }
-                className="bg-transparent"
+                className="bg-transparent text-gray-500"
               />
             </Dropdown>
           )}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { List, Empty, Card, Typography, Button } from "antd";
-import { DeleteOutlined } from "@ant-design/icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { supabase } from "../lib/supabase";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -24,12 +25,16 @@ function CompletedTasks() {
       if (!user) return;
 
       try {
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from("todos")
           .select("id, task, hashtag, created_at, completed_at")
           .eq("is_completed", true)
           .eq("user_id", user.id)
+          .eq("is_visible", true)
           .order("completed_at", { ascending: false });
+        if (error) throw error;
+
+        console.log("Fetched completed tasks:", data);
         setTasks(data || []);
       } catch (error) {
         console.error("Error fetching completed tasks:", error);
@@ -44,7 +49,7 @@ function CompletedTasks() {
     try {
       await supabase
         .from("todos")
-        .delete()
+        .update({ is_visible: false }) // Change to update instead of delete
         .eq("id", taskId)
         .eq("user_id", user.id);
       setTasks(tasks.filter((task) => task.id !== taskId));
@@ -53,10 +58,15 @@ function CompletedTasks() {
     }
   };
 
+  // HANDLE DELETE ALL
+  const handleDeleteAll = () => {
+    setTasks([]); // Clear the tasks from view
+  };
+
   return (
     <div className="max-w-2xl mx-auto space-y-4 md:mt-0 mt-[4.5rem]">
       {/* MOBILE HEADER */}
-      <MobileHeader title="Completed Tasks" />
+      <MobileHeader title="Completed Tasks" onDeleteAll={handleDeleteAll} />
       {/* DESKTOP HEADER */}
       <div className="hidden md:flex items-center justify-center h-14">
         <h2 className="text-lg font-semibold">Completed Tasks</h2>
@@ -83,7 +93,7 @@ function CompletedTasks() {
                       {/* {task.hashtag && <Tag color="blue">#{task.hashtag}</Tag>} */}
                       <Button
                         type="text"
-                        icon={<DeleteOutlined />}
+                        icon={<FontAwesomeIcon icon={faTrash} />}
                         className="text-red-400 hover:text-red-500"
                         onClick={() => handleDelete(task.id)}
                       />
@@ -97,7 +107,7 @@ function CompletedTasks() {
       ) : (
         <Empty
           description="No completed tasks yet"
-          className="bg-white p-8 rounded-2xl shadow-md"
+          className="bg-transparent pt-32"
         />
       )}
     </div>

@@ -111,7 +111,8 @@ function Profile() {
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
-      navigate("/login");
+      // Navigate to login page after successful logout
+      navigate("/login", { replace: true }); // Add replace: true to prevent going back
     } catch (error) {
       message.error(`Error logging out: ${error.message}`);
     }
