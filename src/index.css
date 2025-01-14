@@ -17,6 +17,18 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  padding-top: env(safe-area-inset-top);
+}
+
+.device-header {
+  background-color: red;
+}
+
 input,
 textarea,
 select {
