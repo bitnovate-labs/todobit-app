@@ -39,10 +39,10 @@ function Register() {
 
   return (
     <div
-      className={`h-screen overflow-hidden grid grid-rows-2 ${
+      className={`h-screen overflow-hidden grid grid-rows-3 ${
         isDarkMode
           ? "bg-gray"
-          : "bg-gradient-to-b from-blue-700 via-blue-200 to-white"
+          : "bg-gradient-to-b from-blue-700 via-blue-200 via-40% to-white"
       }`}
     >
       <div className="m-auto">
@@ -53,7 +53,7 @@ function Register() {
         />
       </div>
       <div
-        className={`max-w-md space-y-2 rounded-t-3xl p-8 ${
+        className={`max-w-md h-fit space-y-2 rounded-t-3xl p-8 ${
           isDarkMode
             ? "bg-gradient-to-b from-blue-700 via-blue-500 via-50% to-white"
             : "bg-white"

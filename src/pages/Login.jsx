@@ -43,7 +43,7 @@ function Login() {
         <img src={login_image} alt="login image" className="opacity-70 px-20" />
       </div>
       <div
-        className={`max-w-md w-screen space-y-8 rounded-t-3xl p-8 ${
+        className={`max-w-md w-screen space-y-4 rounded-t-3xl p-8 ${
           isDarkMode
             ? "bg-gradient-to-b from-blue-700 via-blue-500 via-50% to-white"
             : "bg-white"
