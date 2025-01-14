@@ -32,7 +32,7 @@ function Welcome() {
             initial={{ scale: 0.9 }}
             animate={{ scale: 1 }}
             transition={{ duration: 0.5 }}
-            className="mx-auto my-10"
+            className="mx-auto my-10 p-10"
           />
           <div className="space-y-4">
             <Title level={1}>
