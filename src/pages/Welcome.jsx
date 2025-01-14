@@ -13,10 +13,10 @@ function Welcome() {
 
   return (
     <div
-      className={`h-screen overflow-hidden flex flex-col items-center justify-center pt-safe-top ${
+      className={`h-screen overflow-hidden flex flex-col items-center justify-center ${
         isDarkMode
-          ? "bg-gray"
-          : "bg-gradient-to-b from-blue-700 via-blue-200 via-60% to-white"
+          ? "bg-gray pt-safe-top "
+          : "bg-gradient-to-b from-blue-700 via-blue-200 via-60% to-white pt-safe-top "
       }`}
     >
       <motion.div
@@ -32,7 +32,7 @@ function Welcome() {
             initial={{ scale: 0.9 }}
             animate={{ scale: 1 }}
             transition={{ duration: 0.5 }}
-            className="w-full max-h-[50vh] object-contain"
+            className="mx-auto my-10"
           />
           <div className="space-y-4">
             <Title level={1}>
