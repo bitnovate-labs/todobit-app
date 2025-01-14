@@ -53,7 +53,7 @@ function Register() {
         />
       </div>
       <div
-        className={`max-w-md h-fit space-y-2 rounded-t-3xl p-8 ${
+        className={`max-w-md h-dvh space-y-6 rounded-t-3xl p-8 ${
           isDarkMode
             ? "bg-gradient-to-b from-blue-700 via-blue-500 via-50% to-white"
             : "bg-white"

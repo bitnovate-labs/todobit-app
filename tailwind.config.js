@@ -17,6 +17,9 @@ export default {
           // DEFAULT: "#191D23", // Dark mode gray
         },
       },
+      spacing: {
+        "safe-top": "env(safe-area-inset-top)", // to include mobile top notch area coverage
+      },
     },
   },
   plugins: [],

@@ -33,7 +33,7 @@ function Login() {
 
   return (
     <div
-      className={`h-dvh overflow-hidden grid grid-rows-2 ${
+      className={`h-screen overflow-hidden grid grid-rows-3 ${
         isDarkMode
           ? "bg-gray"
           : "bg-gradient-to-b from-blue-700 via-blue-200 to-white"
@@ -43,7 +43,7 @@ function Login() {
         <img src={login_image} alt="login image" className="opacity-70 px-20" />
       </div>
       <div
-        className={`max-w-md w-screen space-y-4 rounded-t-3xl p-8 ${
+        className={`max-w-md h-dvh space-y-6 rounded-t-3xl p-8 ${
           isDarkMode
             ? "bg-gradient-to-b from-blue-700 via-blue-500 via-50% to-white"
             : "bg-white"
