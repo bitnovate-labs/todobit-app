@@ -22,7 +22,7 @@ export default defineConfig({
         name: "Dobit Tracker",
         short_name: "Dobit App",
         description: "Track your daily tasks and build better habits",
-        theme_color: "#ffffff",
+        theme_color: "#141414",
         background_color: "#ffffff",
         display: "standalone",
         scope: "/",
