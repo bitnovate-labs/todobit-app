@@ -345,9 +345,10 @@ function TaskGroups() {
           styles={{
             image: {
               height: 300,
+              margin: "0 100px",
             },
           }}
-          className="max-w-[150px] opacity-60 mx-auto"
+          className="opacity-60"
           description={
             <Typography.Text>
               <span

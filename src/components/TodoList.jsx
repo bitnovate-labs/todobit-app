@@ -195,7 +195,7 @@ function TodoList() {
         <MobileHeader title="Homepage" />
         <div
           className={`flex items-center gap-3 px-4 pt-[10px] pb-[10px] md:pt-4 ${
-            isDarkMode ? "bg-gray" : "bg-white"
+            isDarkMode ? "bg-inherit" : "bg-white"
           }`}
         >
           <img
@@ -255,7 +255,7 @@ function TodoList() {
               : "bg-white border-b border-gray-300 shadow-md"
           }`}
         >
-          <h2 className="text-gray-500 text-base ml-8 font-semibold">
+          <h2 className="text-gray-300 text-base ml-8 font-semibold">
             Today's Tasks
           </h2>
           {tasks.some((task) => !task.is_completed) && (
@@ -398,13 +398,14 @@ function TodoList() {
             styles={{
               image: {
                 height: 150,
+                margin: "0 100px",
               },
             }}
-            className="max-w-[150px] mx-auto opacity-60 mt-20"
+            className="opacity-60 mx-auto mt-10"
             description={
               <Typography.Text>
                 <span
-                  className={`${isDarkMode ? "text-gray-400" : "text-black"}`}
+                  className={`${isDarkMode ? "text-gray-300" : "text-black"}`}
                 >
                   Tap the '+' icon to get started!
                 </span>
