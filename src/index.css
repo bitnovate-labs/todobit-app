@@ -55,3 +55,12 @@ select {
 .heatmap-drawer .ant-drawer-close {
   margin-inline-end: 0;
 }
+
+@media screen and (orientation: landscape) {
+  body {
+    transform: rotate(90deg);
+    width: 100vh;
+    height: 100vw;
+    overflow: hidden;
+  }
+}
