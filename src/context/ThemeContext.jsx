@@ -23,7 +23,7 @@ export function ThemeProvider({ children }) {
 
     if (isDarkMode) {
       themeColorMeta?.setAttribute("content", "#141414"); // Dark mode background
-      statusBarMeta?.setAttribute("content", "#141414"); // Overlay effect
+      statusBarMeta?.setAttribute("content", "black-translucent"); // Overlay effect
     } else {
       themeColorMeta?.setAttribute("content", "#ffffff"); // Light mode background
       statusBarMeta?.setAttribute("content", "default");
