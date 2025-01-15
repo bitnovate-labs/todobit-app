@@ -2,75 +2,68 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 
-// Allows users to install your app on their homescreens
-const manifestForPlugin = {
-  registerType: "autoUpdate",
-  includeAssets: ["favicon.ico", "apple-touch-icon.png", "masked-icon.png"],
-  // injectRegister: "auto",
-  manifest: {
-    name: "Todo & Habit Tracker",
-    short_name: "Dobit App",
-    description: "Track your daily tasks and build better habits",
-    theme_color: "#ffffff",
-    background_color: "#ffffff",
-    display: "standalone",
-    scope: "/",
-    start_url: "/",
-    orientation: "portrait",
-    icons: [
-      {
-        src: "/android-chrome-192x192.png",
-        sizes: "192x192",
-        type: "image/png",
-      },
-      {
-        src: "/android-chrome-512x512.png",
-        sizes: "512x512",
-        type: "image/png",
-        purpose: "favicon",
-      },
-      {
-        src: "/apple-touch-icon.png",
-        sizes: "180x180",
-        type: "image/png",
-        purpose: "apple touch icon",
-      },
-      {
-        src: "/maskable_icon.png",
-        sizes: "512x512",
-        type: "image/png",
-        purpose: "any maskable",
-      },
-    ],
-    shortcuts: [
-      {
-        name: "Add Task",
-        short_name: "Add",
-        description: "Add a new task",
-        url: "/?action=new",
-        icons: [{ src: "/add-task.png", sizes: "192x192" }],
-      },
-      {
-        name: "Statistics",
-        short_name: "Stats",
-        description: "View your progress",
-        url: "/stats",
-        icons: [{ src: "/stats.png", sizes: "192x192" }],
-      },
-    ],
-    share_target: {
-      action: "/?share-target",
-      method: "POST",
-      enctype: "multipart/form-data",
-      params: {
-        title: "name",
-        text: "description",
-      },
-    },
-  },
-};
-
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), VitePWA({ manifestForPlugin })],
+  plugins: [
+    react(),
+    VitePWA({
+      registerType: "autoUpdate",
+      srcDir: "src", // ✅ Ensure Vite looks inside src/
+      filename: "sw.js", // ✅ Use our manually created sw.js
+      includeAssets: [
+        "favicon.ico",
+        "apple-touch-icon-180x180.png",
+        "maskable-icon-512x512.png",
+        "pwa-512x512.png",
+        "pwa-192x192.png",
+        "pwa-64x64.png",
+      ],
+      manifest: {
+        name: "Dobit Tracker",
+        short_name: "Dobit App",
+        description: "Track your daily tasks and build better habits",
+        theme_color: "#ffffff",
+        background_color: "#ffffff",
+        display: "standalone",
+        scope: "/",
+        start_url: "/",
+        orientation: "portrait",
+        icons: [
+          {
+            src: "/pwa-64x64.png",
+            sizes: "64x64",
+            type: "image/png",
+          },
+          {
+            src: "/pwa-192x192.png",
+            sizes: "192x192",
+            type: "image/png",
+          },
+          {
+            src: "/pwa-512x512.png",
+            sizes: "512x512",
+            type: "image/png",
+          },
+          {
+            src: "/maskable-icon-512x512.png",
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "maskable",
+          },
+          {
+            src: "/apple-touch-icon-180x180.png",
+            sizes: "512x512",
+            type: "image/png",
+          },
+        ],
+      },
+      workbox: {
+        globPatterns: ["**/*.{js,css,html,ico,png,svg,webmanifest}"],
+      },
+      devOptions: {
+        enabled: true,
+        type: "module", // ✅ Force ESM mode to prevent Workbox import issues
+      },
+    }),
+  ],
 });

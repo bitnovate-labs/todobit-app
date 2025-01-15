@@ -13,10 +13,10 @@ function Welcome() {
 
   return (
     <div
-      className={`h-screen overflow-hidden flex flex-col items-center justify-center ${
+      className={`h-screen pt-safe-top overflow-hidden flex flex-col items-center justify-center ${
         isDarkMode
-          ? "bg-gray pt-safe-top "
-          : "bg-gradient-to-b from-blue-700 via-blue-200 via-60% to-white pt-safe-top "
+          ? "bg-gray"
+          : "bg-gradient-to-b from-blue-700 via-blue-200 via-60% to-white"
       }`}
     >
       <motion.div
