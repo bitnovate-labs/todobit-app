@@ -14,11 +14,8 @@ export default {
         },
         gray: {
           DEFAULT: "#141414", // Dark mode gray
-          // DEFAULT: "#191D23", // Dark mode gray
+          // DEFAULT: "#191D23", // Dark mode gray that I wanted
         },
-      },
-      spacing: {
-        "safe-top": "env(safe-area-inset-top)", // to include mobile top notch area coverage
       },
     },
   },
