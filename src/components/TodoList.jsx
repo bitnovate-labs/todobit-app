@@ -185,8 +185,8 @@ function TodoList() {
       </div>
 
       <div
-        className={`fixed top-[3.5rem] left-0 right-0 z-10 md:relative md:top-0 ${
-          isDarkMode ? "bg-gray" : "bg-white"
+        className={`fixed top-[2.5rem] left-0 right-0 z-10 md:relative md:top-0 ${
+          isDarkMode ? "bg-inherit" : "bg-white"
         }`}
       >
         {/* MOBILE HEADER */}
@@ -198,10 +198,10 @@ function TodoList() {
               `https://api.dicebear.com/7.x/micah/svg?seed=${user?.id}`
             }
             alt="Profile"
-            className="w-12 h-auto rounded-full ml-2"
+            className="w-10 h-auto rounded-full ml-2"
           />
           <div className="ml-2">
-            <h2 className="text-lg font-semibold">Hello {userName}!</h2>
+            <h2 className="text-base font-semibold">Hello {userName}!</h2>
             <Text className="text-gray-500">
               You have {tasks.filter((task) => !task.is_completed).length} tasks
               today
@@ -209,14 +209,15 @@ function TodoList() {
           </div>
         </div>
 
+        {/* HOMEPAGE BANNER IMAGE */}
+        <div className="mt-2">
+          <img src={forest_image} alt="login image" className="w-full h-44" />
+        </div>
+
         {/* SECTION */}
-        <div className="mt-2 flex flex-col justify-center items-center">
-          <div className="m-auto">
-            {/* <img src={home_image} alt="login image" className="px-6" /> */}
-            <img src={forest_image} alt="login image" className="opacity-90 " />
-          </div>
-          {/* CODE FOR FUTURE USE */}
-          {/* <Card
+        {/* <div className="mt-2 flex flex-col justify-center items-center"> */}
+        {/* CODE FOR FUTURE USE */}
+        {/* <Card
             size="small"
             className="rounded-3xl border-none shadow-lg bg-white opacity-70 my-2 absolute"
             style={{
@@ -238,10 +239,16 @@ function TodoList() {
               </div>
             </Carousel>
           </Card> */}
-        </div>
+        {/* </div> */}
 
         {/* Tasks remaining and Clear All Button */}
-        <div className="flex items-center justify-between w-full max-w-2xl h-12">
+        <div
+          className={`flex items-center justify-between w-full max-w-2xl h-12 ${
+            isDarkMode
+              ? "bg-gray"
+              : "bg-white border-b border-gray-300 shadow-md"
+          }`}
+        >
           <h2 className="text-gray-500 text-base ml-8 font-semibold">
             Today's Tasks
           </h2>
@@ -266,10 +273,10 @@ function TodoList() {
                 icon={
                   <FontAwesomeIcon
                     icon={faEllipsisVertical}
-                    style={{ fontSize: "20px", marginRight: "12px" }}
+                    style={{ fontSize: "20px", marginRight: "18px" }}
                   />
                 }
-                className="bg-transparent text-gray-500"
+                className="bg-none text-gray-500"
               />
             </Dropdown>
           )}
@@ -277,7 +284,7 @@ function TodoList() {
       </div>
 
       {/* TASK CARDS */}
-      <div className="pt-[360px]">
+      <div className="pt-[280px]">
         {tasks.some((task) => !task.is_completed) ? (
           <Row gutter={[16, 16]} className="relative z-0">
             <AnimatePresence mode="popLayout">

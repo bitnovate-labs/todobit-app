@@ -61,7 +61,7 @@ function Statistics() {
   }, []);
 
   return (
-    <div className="max-w-4xl mx-auto md:mt-0 space-y-20">
+    <div className="max-w-4xl mx-auto md:mt-0 space-y-14">
       {/* MOBILE HEADER */}
       <MobileHeader title="Statistics" />
       {/* DESKTOP HEADER */}

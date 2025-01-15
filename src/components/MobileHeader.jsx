@@ -76,8 +76,10 @@ function MobileHeader({ title, onDeleteAll }) {
 
   return (
     <div
-      className={`h-14 flex items-center justify-between px-8 pt-10 pb-8 md:hidden fixed top-0 left-0 right-0  z-20 border-b border-gray-200 ${
-        isDarkMode ? "bg-gray border-none" : "bg-white"
+      className={`h-14 flex items-center justify-between px-4 md:hidden fixed top-0 left-0 right-0 z-20 ${
+        isDarkMode
+          ? "bg-gray border-none"
+          : "bg-white border-b border-gray-300 shadow-md"
       }`}
     >
       {/* LEFT HAMBURGER MENU */}
@@ -111,8 +113,8 @@ function MobileHeader({ title, onDeleteAll }) {
       <h2 className="text-lg font-semibold">{title}</h2>
       <div className="w-8" /> {/* Spacer for alignment */}
       {/* RIGHT ELLIPSIS MENU (FOR COMPLETED TASKS) */}
-      <div className="fixed top-2 right-0 z-10 bg-transparent md:hidden">
-        <div className="flex items-center px-2 h-16">
+      <div className="fixed right-0 z-10 bg-transparent md:hidden">
+        <div className="flex items-center px-2 h-14">
           {title === "Completed Tasks" && (
             <Dropdown
               menu={{ items: deleteMenu }}
@@ -127,7 +129,7 @@ function MobileHeader({ title, onDeleteAll }) {
                     style={{ fontSize: "20px" }}
                   />
                 }
-                className="bg-transparent text-gray-500"
+                className="bg-none text-gray-500"
               />
             </Dropdown>
           )}

@@ -30,7 +30,7 @@ function Settings() {
       </div>
 
       {/* CONTENTS */}
-      <div className="space-y-4 flex-grow pt-24">
+      <div className="space-y-4 flex-grow pt-14">
         {settings.map((setting, index) => (
           <Card
             key={index}

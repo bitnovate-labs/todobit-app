@@ -64,7 +64,7 @@ function CompletedTasks() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-4 md:mt-0 mt-[4.5rem]">
+    <div className="max-w-2xl mx-auto space-y-4 md:mt-0 mt-[3.5rem]">
       {/* MOBILE HEADER */}
       <MobileHeader title="Completed Tasks" onDeleteAll={handleDeleteAll} />
       {/* DESKTOP HEADER */}

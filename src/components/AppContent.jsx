@@ -67,10 +67,8 @@ function AppContent() {
           <DesktopFooter />
         </Layout>
       </Layout>
-      <Layout
-        className="md:hidden"
-        // className={`md:hidden ${isDarkMode ? "bg-[#141414]" : "bg-red-500"}`}
-      >
+      {/* MOBILE LAYOUT */}
+      <Layout className="md:hidden mb-12">
         <Layout.Content className="p-4 pb-20">
           <Routes>
             <Route path="/" element={<TodoList />} />

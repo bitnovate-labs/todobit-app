@@ -167,7 +167,7 @@ function TaskGroups() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-4 md:mt-0 pt-20">
+    <div className="max-w-2xl mx-auto space-y-4 md:mt-0 pt-14">
       {/* MOBILE HEADER */}
       <MobileHeader title="Task Groups" />
       {/* DESKTOP HEADER */}
@@ -175,7 +175,7 @@ function TaskGroups() {
         <h2 className="text-lg font-semibold">Task Groups</h2>
       </div>
       {/* CREATE TASK GROUP BUTTON */}
-      <div className="fixed top-[3.5rem] left-0 right-0 z-10 md:hidden flex items-center justify-center py-4">
+      <div className="fixed top-[2.5rem] left-0 right-0 z-10 md:hidden flex items-center justify-center py-4">
         <Button
           type="primary"
           //   icon={<PlusOutlined />}
