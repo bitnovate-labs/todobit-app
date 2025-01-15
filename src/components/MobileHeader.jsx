@@ -78,7 +78,7 @@ function MobileHeader({ title, onDeleteAll }) {
     <div
       className={`h-14 flex items-center justify-between px-4 md:hidden fixed top-0 left-0 right-0 z-20 ${
         isDarkMode
-          ? "bg-gray border-none"
+          ? "bg-black border-b border-gray-800"
           : "bg-white border-b border-gray-300 shadow-md"
       }`}
     >

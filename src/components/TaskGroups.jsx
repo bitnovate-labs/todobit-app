@@ -9,6 +9,7 @@ import {
   Typography,
   Collapse,
   Divider,
+  Empty,
 } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -20,7 +21,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { taskGroupsApi } from "../lib/supabase";
 import MobileHeader from "./MobileHeader";
-import EmptyGroup from "./EmptyGroup";
+// import EmptyGroup from "./EmptyGroup";
+import BlankClipboard from "../assets/emptygroup.png";
 import { useTheme } from "../context/ThemeContext";
 
 const { Text } = Typography;
@@ -192,8 +194,10 @@ function TaskGroups() {
           {groups.map((group) => (
             <Collapse
               key={group.id}
-              className={`rounded-2xl shadow-md hover:shadow-md transition-shadow border-none overflow-hidden mb-2 ${
-                isDarkMode ? "bg-gray" : "bg-white"
+              className={`rounded-2xl shadow-md hover:shadow-md transition-shadow overflow-hidden mb-2 ${
+                isDarkMode
+                  ? "bg-gray border border-gray-800"
+                  : "bg-white border-none"
               }`}
               expandIcon={({ isActive }) => (
                 <FontAwesomeIcon
@@ -334,7 +338,26 @@ function TaskGroups() {
           ))}
         </div>
       ) : (
-        <EmptyGroup />
+        // <EmptyGroup /> // CODE FOR FUTURE USE (TOO LAGGY)
+        <Empty
+          // image={Empty.PRESENTED_IMAGE_SIMPLE}
+          image={BlankClipboard}
+          styles={{
+            image: {
+              height: 300,
+            },
+          }}
+          className="max-w-[150px] opacity-60 mx-auto"
+          description={
+            <Typography.Text>
+              <span
+                className={`${isDarkMode ? "text-gray-400" : "text-black"}`}
+              >
+                No task groups created yet
+              </span>
+            </Typography.Text>
+          }
+        />
       )}
 
       {/* MODAL EDIT TASK GROUP / CREATE TASK GROUP */}

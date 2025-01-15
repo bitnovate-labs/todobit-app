@@ -97,7 +97,9 @@ function Login() {
             <Button
               type="primary"
               htmlType="submit"
-              className="text-lg w-full"
+              className={`text-lg w-full ${
+                isDarkMode ? "border-white bg-blue-500" : "border-none"
+              }`}
               size="large"
               loading={loading}
             >
@@ -107,10 +109,16 @@ function Login() {
         </Form>
 
         <div className="text-center">
-          <Text className="text-gray-600">
+          <Text
+            className={` ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
+          >
             Don&apos;t have an account?{" "}
-            <Link to="/register" className="text-blue-600">
-              Sign up
+            <Link to="/register">
+              <span
+                className={`${isDarkMode ? "text-gray-300" : "text-blue-600"}`}
+              >
+                Sign up
+              </span>
             </Link>
           </Text>
         </div>

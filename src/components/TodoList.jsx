@@ -9,6 +9,7 @@ import {
   Modal,
   Input,
   Dropdown,
+  Empty,
   // Carousel,
 } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -21,10 +22,11 @@ import dayjs from "dayjs";
 import MobileHeader from "./MobileHeader";
 import { motion, AnimatePresence } from "motion/react";
 import { todoApi, subscribeToTodos } from "../lib/supabase";
-import EmptyState from "./EmptyTodo";
+// import EmptyState from "./EmptyTodo";
 import forest_image from "../assets/tree.jpg";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
+import Clipboard from "../assets/clipboard.png";
 
 const { Text } = Typography;
 
@@ -191,14 +193,18 @@ function TodoList() {
       >
         {/* MOBILE HEADER */}
         <MobileHeader title="Homepage" />
-        <div className="flex items-center gap-3 px-4 pt-4 pb-2 md:pt-4">
+        <div
+          className={`flex items-center gap-3 px-4 pt-[10px] pb-[10px] md:pt-4 ${
+            isDarkMode ? "bg-gray" : "bg-white"
+          }`}
+        >
           <img
             src={
               user?.user_metadata?.avatar_url ||
               `https://api.dicebear.com/7.x/micah/svg?seed=${user?.id}`
             }
             alt="Profile"
-            className="w-10 h-auto rounded-full ml-2"
+            className="w-10 h-10 rounded-full ml-2"
           />
           <div className="ml-2">
             <h2 className="text-base font-semibold">Hello {userName}!</h2>
@@ -210,7 +216,7 @@ function TodoList() {
         </div>
 
         {/* HOMEPAGE BANNER IMAGE */}
-        <div className="mt-2">
+        <div>
           <img src={forest_image} alt="login image" className="w-full h-44" />
         </div>
 
@@ -245,7 +251,7 @@ function TodoList() {
         <div
           className={`flex items-center justify-between w-full max-w-2xl h-12 ${
             isDarkMode
-              ? "bg-gray"
+              ? "bg-gray border-b border-gray-800"
               : "bg-white border-b border-gray-300 shadow-md"
           }`}
         >
@@ -284,7 +290,7 @@ function TodoList() {
       </div>
 
       {/* TASK CARDS */}
-      <div className="pt-[280px]">
+      <div className="pt-[270px]">
         {tasks.some((task) => !task.is_completed) ? (
           <Row gutter={[16, 16]} className="relative z-0">
             <AnimatePresence mode="popLayout">
@@ -385,7 +391,26 @@ function TodoList() {
             </AnimatePresence>
           </Row>
         ) : (
-          <EmptyState />
+          // <EmptyState /> // CODE FOR FUTURE USE (TOO LAGGY TO LOAD)
+          <Empty
+            // image={Empty.PRESENTED_IMAGE_SIMPLE}
+            image={Clipboard}
+            styles={{
+              image: {
+                height: 150,
+              },
+            }}
+            className="max-w-[150px] mx-auto opacity-60 mt-20"
+            description={
+              <Typography.Text>
+                <span
+                  className={`${isDarkMode ? "text-gray-400" : "text-black"}`}
+                >
+                  Tap the '+' icon to get started!
+                </span>
+              </Typography.Text>
+            }
+          />
         )}
       </div>
 

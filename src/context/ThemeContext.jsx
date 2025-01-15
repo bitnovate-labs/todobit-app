@@ -15,7 +15,7 @@ export function ThemeProvider({ children }) {
   useEffect(() => {
     localStorage.setItem("theme", isDarkMode ? "dark" : "light");
 
-    // Update theme-related meta tags dynamically
+    // Update mobile phone top status bar theme-related meta tags dynamically
     const themeColorMeta = document.querySelector('meta[name="theme-color"]');
     const statusBarMeta = document.querySelector(
       'meta[name="apple-mobile-web-app-status-bar-style"]'
