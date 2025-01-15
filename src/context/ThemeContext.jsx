@@ -36,7 +36,7 @@ export function ThemeProvider({ children }) {
       }
       const newMetaTag = document.createElement("meta");
       newMetaTag.name = "theme-color";
-      newMetaTag.content = isDarkMode ? "#000000" : "#ffffff";
+      newMetaTag.content = isDarkMode ? "#141414" : "#ffffff";
       document.head.appendChild(newMetaTag); // Safely add new meta tag
     }, 100);
   }, [isDarkMode]);
