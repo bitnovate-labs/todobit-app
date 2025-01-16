@@ -6,6 +6,22 @@ const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
+// Helper function for user authentication
+const getAuthenticatedUser = async () => {
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+  if (error || !user) throw new Error("Please sign in to continue");
+  return user;
+};
+
+// Helper function for error handling
+const handleSupabaseResponse = ({ data, error }) => {
+  if (error) throw error;
+  return data;
+};
+
 // Subscribe to changes
 export const subscribeToTodos = (callback) => {
   return supabase
@@ -20,150 +36,115 @@ export const subscribeToTodos = (callback) => {
 
 // Todo CRUD operations
 export const todoApi = {
-  // Create a new todo
+  // CREATE NEW TODO
   async create(task, hashtag, isPriority = false) {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) throw new Error("Please sign in to create tasks");
+    const user = await getAuthenticatedUser();
 
-    const { data, error } = await supabase
-      .from("todos")
-      .insert([
-        {
-          task,
-          hashtag: hashtag || "", // Use empty string instead of null
-          user_id: user.id,
-          is_priority: isPriority,
-        },
-      ])
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
+    return handleSupabaseResponse(
+      await supabase
+        .from("todos")
+        .insert([
+          {
+            task,
+            hashtag: hashtag || "", // Use empty string instead of null
+            user_id: user.id,
+            is_priority: isPriority,
+          },
+        ])
+        .select()
+        .single()
+    );
   },
 
-  // Read all todos
+  // GET ALL TODOS
   async getAll() {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) throw new Error("Please sign in to view tasks");
+    const user = await getAuthenticatedUser();
 
-    const { data, error } = await supabase
-      .from("todos")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
-
-    if (error) throw error;
-    return data;
+    return handleSupabaseResponse(
+      await supabase
+        .from("todos")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+    );
   },
 
-  // Clear all non-completed tasks
+  // DELETE ALL TODOS (NON-COMPLETED / CURRENT)
   async clearAll() {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) throw new Error("Please sign in to clear tasks");
+    const user = await getAuthenticatedUser();
 
-    const { error } = await supabase
-      .from("todos")
-      .delete()
-      .eq("is_completed", false)
-      .eq("user_id", user.id);
-
-    if (error) throw error;
-    return true;
-  },
-
-  // Archive completed tasks and clear todo list
-  async archiveAndClear() {
-    try {
-      // First move completed tasks to completed_todos
-      await supabase.rpc("archive_completed_todos");
-
-      // Then delete all todos
-      const { error } = await supabase
+    return handleSupabaseResponse(
+      await supabase
         .from("todos")
         .delete()
-        .not("id", "is", null);
+        .eq("is_completed", false)
+        .eq("user_id", user.id)
+    );
+  },
 
-      if (error) throw error;
-      return true;
+  // ARCHIVE AND DELETE COMPLETED TASKS
+  async archiveAndClear() {
+    await getAuthenticatedUser();
+    try {
+      await supabase.rpc("archive_completed_todos"); // First move completed tasks to completed_todos table
+      return handleSupabaseResponse(
+        await supabase.from("todos").delete().not("id", "is", null) // Then delete all todos
+      );
     } catch (error) {
       console.error("Error archiving and clearing todos:", error);
       throw error;
     }
   },
 
-  // Get todos by hashtag
+  // GET TODOS BY HASHTAG
   async getByHashtag(hashtag) {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) throw new Error("Please sign in to view tasks");
-
-    const { data, error } = await supabase
-      .from("todos")
-      .select("*")
-      .eq("hashtag", hashtag)
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
-
-    if (error) throw error;
-    return data;
+    const user = await getAuthenticatedUser();
+    return handleSupabaseResponse(
+      await supabase
+        .from("todos")
+        .select("*")
+        .eq("hashtag", hashtag)
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+    );
   },
 
-  // Update todo text
-  async update(id, task, hashtag) {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) throw new Error("Please sign in to update tasks");
+  // UPDATE TODOS
+  async update(id, task, hashtag, isPriority) {
+    const user = await getAuthenticatedUser();
 
-    const { data, error } = await supabase
-      .from("todos")
-      .update({ task, hashtag })
-      .eq("id", id)
-      .eq("user_id", user.id)
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
+    return handleSupabaseResponse(
+      await supabase
+        .from("todos")
+        .update({ task, hashtag, is_priority: isPriority })
+        .eq("id", id)
+        .eq("user_id", user.id)
+        .select()
+        .single()
+    );
   },
 
-  // Update todo completion status
+  // UPDATE TODO COMPLETED STATUS
   async toggleComplete(id, isCompleted) {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) throw new Error("Please sign in to update tasks");
+    const user = await getAuthenticatedUser();
 
-    const { data, error } = await supabase
-      .from("todos")
-      .update({
-        is_completed: isCompleted,
-        completed_at: isCompleted ? new Date().toISOString() : null,
-      })
-      .eq("id", id)
-      .eq("user_id", user.id)
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
+    return handleSupabaseResponse(
+      await supabase
+        .from("todos")
+        .update({
+          is_completed: isCompleted,
+          completed_at: isCompleted ? new Date().toISOString() : null,
+        })
+        .eq("id", id)
+        .eq("user_id", user.id)
+        .select()
+        .single()
+    );
   },
 
-  // Get statistics by hashtag
+  // GET STATISTICS BY HASHTAG
   async getStatistics() {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) throw new Error("Please sign in to view statistics");
+    const user = await getAuthenticatedUser();
 
     const { data: todos, error } = await supabase
       .from("todos")
@@ -241,161 +222,127 @@ export const todoApi = {
 
   // Delete a todo
   async delete(id) {
-    const { error } = await supabase.from("todos").delete().eq("id", id);
-
-    if (error) throw error;
-    return true;
+    const user = await getAuthenticatedUser();
+    return handleSupabaseResponse(
+      await supabase.from("todos").delete().eq("id", id).eq("user_id", user.id)
+    );
   },
 };
 
-// Task Groups API
+// -----------------------------------------------
+// TASK GROUPS API
 export const taskGroupsApi = {
-  // Create a new task group
+  // CREATE A NEW TASK GROUP
   async create(name, description = "") {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) throw new Error("Please sign in to create task groups");
+    const user = await getAuthenticatedUser();
 
-    const { data, error } = await supabase
-      .from("task_groups")
-      .insert([
-        {
-          name,
-          description,
-          user_id: user.id,
-        },
-      ])
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
+    return handleSupabaseResponse(
+      await supabase
+        .from("task_groups")
+        .insert([
+          {
+            name,
+            description,
+            user_id: user.id,
+          },
+        ])
+        .select()
+        .single()
+    );
   },
 
-  // Add items to a task group
+  // ADD ITEMS TO A TASK GROUP
   async addItems(groupId, items) {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) throw new Error("Please sign in to add task group items");
+    const user = await getAuthenticatedUser();
 
-    const { data, error } = await supabase
-      .from("task_group_items")
-      .insert(
-        items.map((item) => ({
-          group_id: groupId,
-          task: item.task,
-          hashtag: item.hashtag,
-          user_id: user.id,
-        }))
-      )
-      .select();
-
-    if (error) throw error;
-    return data;
+    return handleSupabaseResponse(
+      await supabase
+        .from("task_group_items")
+        .insert(
+          items.map((item) => ({
+            group_id: groupId,
+            task: item.task,
+            hashtag: item.hashtag,
+            user_id: user.id,
+          }))
+        )
+        .select()
+    );
   },
 
-  // Get all task groups
+  // GET ALL TASK GROUPS
   async getAll() {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) throw new Error("Please sign in to view task groups");
-
-    const { data, error } = await supabase
-      .from("task_groups")
-      .select(
+    const user = await getAuthenticatedUser();
+    return handleSupabaseResponse(
+      await supabase
+        .from("task_groups")
+        .select(
+          `
+          *,
+          items:task_group_items(*)
         `
-        *,
-        items:task_group_items(*)
-      `
-      )
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
-
-    if (error) throw error;
-    return data;
+        )
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+    );
   },
 
-  // Update task group
+  // UPDATE TASK GROUP
   async update(id, name, description) {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) throw new Error("Please sign in to update task groups");
-
-    const { data, error } = await supabase
-      .from("task_groups")
-      .update({ name, description })
-      .eq("id", id)
-      .eq("user_id", user.id)
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
+    const user = await getAuthenticatedUser();
+    return handleSupabaseResponse(
+      await supabase
+        .from("task_groups")
+        .update({ name, description })
+        .eq("id", id)
+        .eq("user_id", user.id)
+        .select()
+        .single()
+    );
   },
 
-  // Delete task group
+  // DELETE TASK GROUP
   async delete(id) {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) throw new Error("Please sign in to delete task groups");
-
-    const { error } = await supabase
-      .from("task_groups")
-      .delete()
-      .eq("id", id)
-      .eq("user_id", user.id);
-
-    if (error) throw error;
-    return true;
+    const user = await getAuthenticatedUser();
+    return handleSupabaseResponse(
+      await supabase
+        .from("task_groups")
+        .delete()
+        .eq("id", id)
+        .eq("user_id", user.id)
+    );
   },
 
-  // Update task group item
+  // UPDATE TASK GROUP ITEM
   async updateItem(itemId, task, hashtag) {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) throw new Error("Please sign in to update task group items");
+    const user = await getAuthenticatedUser();
 
-    const { data, error } = await supabase
-      .from("task_group_items")
-      .update({ task, hashtag })
-      .eq("id", itemId)
-      .eq("user_id", user.id)
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
+    return handleSupabaseResponse(
+      await supabase
+        .from("task_group_items")
+        .update({ task, hashtag })
+        .eq("id", itemId)
+        .eq("user_id", user.id)
+        .select()
+        .single()
+    );
   },
 
-  // Delete task group item
+  // DELETE TASK GROUP ITEM
   async deleteItem(itemId) {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) throw new Error("Please sign in to delete task group items");
-
-    const { error } = await supabase
-      .from("task_group_items")
-      .delete()
-      .eq("id", itemId)
-      .eq("user_id", user.id);
-
-    if (error) throw error;
-    return true;
+    const user = await getAuthenticatedUser();
+    return handleSupabaseResponse(
+      await supabase
+        .from("task_group_items")
+        .delete()
+        .eq("id", itemId)
+        .eq("user_id", user.id)
+    );
   },
 
-  // Add group tasks to todos
+  // ADD TASK GROUP TO TODOS
   async addToTodos(groupId) {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) throw new Error("Please sign in to add tasks");
+    const user = await getAuthenticatedUser();
 
     const { data: items, error } = await supabase
       .from("task_group_items")

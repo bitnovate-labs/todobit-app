@@ -10,6 +10,7 @@ import {
   Input,
   Dropdown,
   Empty,
+  Switch,
   // Carousel,
 } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -34,6 +35,7 @@ function TodoList() {
   const [tasks, setTasks] = useState([]);
   const [editingTask, setEditingTask] = useState(null);
   const [editedText, setEditedText] = useState("");
+  const [editedPriority, setEditedPriority] = useState(false);
   const [editedHashtag, setEditedHashtag] = useState("");
   const [showCompleted, setShowCompleted] = useState(false);
   const [lastCheckDate, setLastCheckDate] = useState(
@@ -135,13 +137,27 @@ function TodoList() {
   // HANDLE EDIT
   const handleEdit = async () => {
     try {
-      await todoApi.update(editingTask.id, editedText, editedHashtag);
+      await todoApi.update(
+        editingTask.id,
+        editedText,
+        editedHashtag,
+        editedPriority
+      );
       setEditingTask(null);
       setEditedText("");
       setEditedHashtag("");
+      setEditedPriority(false);
     } catch (error) {
       console.error("Error updating task:", error);
     }
+  };
+
+  // HANDLE OPEN EDIT MODAL
+  const openEditModal = (task) => {
+    setEditingTask(task);
+    setEditedText(task.task); // display the current task in input for editing
+    setEditedHashtag(task.hashtag || ""); // display the current hashtag in input for editing
+    setEditedPriority(task.is_priority || false); // Set initial priority state
   };
 
   // HANDLE DELETE
@@ -195,7 +211,7 @@ function TodoList() {
         <MobileHeader title="Homepage" />
         <div
           className={`flex items-center gap-3 px-4 pt-[10px] pb-[10px] md:pt-4 ${
-            isDarkMode ? "bg-inherit" : "bg-white"
+            isDarkMode ? "bg-black" : "bg-white"
           }`}
         >
           <img
@@ -255,7 +271,11 @@ function TodoList() {
               : "bg-white border-b border-gray-300 shadow-md"
           }`}
         >
-          <h2 className="text-gray-300 text-base ml-8 font-semibold">
+          <h2
+            className={`text-base ml-8 font-semibold ${
+              isDarkMode ? "text-gray-300" : "text-gray-600"
+            }`}
+          >
             Today's Tasks
           </h2>
           {tasks.some((task) => !task.is_completed) && (
@@ -363,9 +383,7 @@ function TodoList() {
                                 }`}
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  setEditingTask(task);
-                                  setEditedText(task.task);
-                                  setEditedHashtag(task.hashtag || "");
+                                  openEditModal(task);
                                 }}
                               />
                               {/* DELETE BUTTON */}
@@ -424,6 +442,7 @@ function TodoList() {
           setEditingTask(null);
           setEditedText("");
           setEditedHashtag("");
+          setEditedPriority(false);
         }}
       >
         <div className="space-y-4">
@@ -438,6 +457,16 @@ function TodoList() {
             placeholder="Category (optional)"
             prefix="#"
           />
+          <div className="flex items-center justify-between">
+            <span className="text-gray-600 dark:text-gray-400">
+              Priority Task
+            </span>
+            <Switch
+              checked={editedPriority}
+              onChange={setEditedPriority}
+              className={editedPriority ? "bg-blue-500" : ""}
+            />
+          </div>
         </div>
       </Modal>
 

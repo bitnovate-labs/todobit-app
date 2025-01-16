@@ -321,7 +321,7 @@ function TaskGroups() {
                         />,
                       ]}
                     >
-                      <div className="flex flex-col ">
+                      <div className="flex flex-col flex-1">
                         <Text>{item.task}</Text>
                         {/* LIST HASHTAGS - CODE FOR FUTURE USE */}
                         {/* {item.hashtag && (
