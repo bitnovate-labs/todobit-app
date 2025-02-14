@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Card,
   Checkbox,
@@ -33,6 +34,7 @@ const { Text } = Typography;
 function TodoList() {
   const [tasks, setTasks] = useState([]);
   const [editingTask, setEditingTask] = useState(null);
+  const queryClient = useQueryClient();
   const [editedText, setEditedText] = useState("");
   const [editedPriority, setEditedPriority] = useState(false);
   const [editedHashtag, setEditedHashtag] = useState("");
@@ -45,58 +47,59 @@ function TodoList() {
   const userName =
     user?.user_metadata?.name || user?.email?.split("@")[0] || "there";
 
+  // Query tasks
+  const { data: tasksData, isLoading } = useQuery({
+    queryKey: ["todos"],
+    queryFn: todoApi.getAll,
+    initialData: () => {
+      // Use cached data from localStorage if available
+      const cached = localStorage.getItem("todos_cache");
+      if (cached) {
+        const { data, timestamp } = JSON.parse(cached);
+        if (Date.now() - timestamp < 5 * 60 * 1000) {
+          // 5 minutes
+          return data;
+        }
+      }
+      return undefined;
+    },
+  });
+
   // Fetch Data
-  const fetchTasks = useCallback(async () => {
-    try {
-      const data = await todoApi.getAll();
-      setTasks(data);
-    } catch (error) {
-      console.error("Error fetching tasks:", error);
-    }
-  }, []);
+  // const fetchTasks = useCallback(async () => {
+  //   try {
+  //     const data = await todoApi.getAll();
+  //     setTasks(data);
+  //   } catch (error) {
+  //     console.error("Error fetching tasks:", error);
+  //   }
+  // }, []);
 
   useEffect(() => {
-    fetchTasks();
+    // fetchTasks();
+    if (tasksData) {
+      setTasks(tasksData);
+    }
 
     // Subscribe to real-time updates
     const subscription = subscribeToTodos((payload) => {
       if (payload.eventType === "INSERT") {
-        // Update local state and cache
-        setTasks((current) => [payload.new, ...current]);
-        localStorage.setItem(
-          "todos_cache",
-          JSON.stringify({
-            data: [payload.new, ...tasks],
-            timestamp: Date.now(),
-          })
-        );
+        queryClient.setQueryData(["todos"], (old) => [
+          payload.new,
+          ...(old || []),
+        ]);
       } else if (payload.eventType === "DELETE") {
-        // Update local state and cache
-        setTasks((current) =>
-          current.filter((task) => task.id !== payload.old.id)
-        );
-        localStorage.setItem(
-          "todos_cache",
-          JSON.stringify({
-            data: tasks.filter((task) => task.id !== payload.old.id),
-            timestamp: Date.now(),
-          })
+        queryClient.setQueryData(
+          ["todos"],
+          (old) => old?.filter((task) => task.id !== payload.old.id) || []
         );
       } else if (payload.eventType === "UPDATE") {
-        // Update local state and cache
-        setTasks((current) =>
-          current.map((task) =>
-            task.id === payload.new.id ? payload.new : task
-          )
-        );
-        localStorage.setItem(
-          "todos_cache",
-          JSON.stringify({
-            data: tasks.map((task) =>
+        queryClient.setQueryData(
+          ["todos"],
+          (old) =>
+            old?.map((task) =>
               task.id === payload.new.id ? payload.new : task
-            ),
-            timestamp: Date.now(),
-          })
+            ) || []
         );
       }
     });
@@ -105,15 +108,22 @@ function TodoList() {
     return () => {
       subscription.unsubscribe();
     };
-  }, [fetchTasks]);
+  }, [tasksData, queryClient]);
 
   // HANDLE COMPLETE
   const handleTaskComplete = async (taskId) => {
     try {
       const task = tasks.find((t) => t.id === taskId);
-      // Optimistically update UI
-      setTasks((current) =>
-        current.map((t) =>
+      // // Optimistically update UI
+      // setTasks((current) =>
+      //   current.map((t) =>
+      //     t.id === taskId ? { ...t, is_completed: !t.is_completed } : t
+      //   )
+      // );
+
+      // Optimistically update cache
+      queryClient.setQueryData(["todos"], (old) =>
+        old?.map((t) =>
           t.id === taskId ? { ...t, is_completed: !t.is_completed } : t
         )
       );
@@ -127,12 +137,8 @@ function TodoList() {
       }
     } catch (error) {
       console.error("Error updating task:", error);
-      // Revert optimistic update on error
-      setTasks((current) =>
-        current.map((t) =>
-          t.id === taskId ? { ...t, is_completed: !t.is_completed } : t
-        )
-      );
+      // Revert optimistic update
+      queryClient.invalidateQueries({ queryKey: ["todos"] });
     }
   };
 

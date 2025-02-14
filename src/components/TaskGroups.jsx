@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Button,
   Modal,
@@ -29,6 +30,7 @@ const { Text } = Typography;
 
 function TaskGroups() {
   const [groups, setGroups] = useState([]);
+  const queryClient = useQueryClient();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingGroup, setEditingGroup] = useState(null);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
@@ -41,28 +43,56 @@ function TaskGroups() {
   const [newTaskForm] = Form.useForm();
   const { isDarkMode } = useTheme(); // Access theme context
 
-  // FETCH GROUPS
-  useEffect(() => {
-    fetchGroups();
-  }, []);
+  // Query task groups
+  const { data: groupsData, isLoading } = useQuery({
+    queryKey: ["taskGroups"],
+    queryFn: taskGroupsApi.getAll,
+    initialData: () => {
+      const cached = localStorage.getItem("task_groups_cache");
+      if (cached) {
+        const { data, timestamp } = JSON.parse(cached);
+        if (Date.now() - timestamp < 15 * 60 * 1000) {
+          // 15 minutes
+          return data;
+        }
+      }
+      return undefined;
+    },
+  });
 
-  const fetchGroups = async () => {
-    try {
-      const data = await taskGroupsApi.getAll();
-      setGroups(data || []);
-    } catch (error) {
-      console.error("Error fetching groups:", error);
+  // FETCH GROUPS
+  // useEffect(() => {
+  //   fetchGroups();
+  // }, []);
+
+  useEffect(() => {
+    if (groupsData) {
+      setGroups(groupsData);
     }
-  };
+  }, [groupsData]);
+
+  // const fetchGroups = async () => {
+  //   try {
+  //     const data = await taskGroupsApi.getAll();
+  //     setGroups(data || []);
+  //   } catch (error) {
+  //     console.error("Error fetching groups:", error);
+  //   }
+  // };
 
   // HANDLE CREATE GROUP
   const handleCreateGroup = async (values) => {
     try {
       if (editingGroup) {
-        await taskGroupsApi.update(
+        const updatedGroup = await taskGroupsApi.update(
           editingGroup.id,
           values.name,
           values.description
+        );
+        queryClient.setQueryData(["taskGroups"], (old) =>
+          old?.map((group) =>
+            group.id === updatedGroup.id ? updatedGroup : group
+          )
         );
       } else {
         const group = await taskGroupsApi.create(
@@ -80,7 +110,8 @@ function TaskGroups() {
       form.resetFields();
       setIsModalVisible(false);
       setEditingGroup(null);
-      fetchGroups();
+      queryClient.invalidateQueries({ queryKey: ["taskGroups"] });
+      // fetchGroups();
     } catch (error) {
       console.error("Error creating group:", error);
     }
@@ -101,9 +132,12 @@ function TaskGroups() {
   const handleDelete = async () => {
     try {
       await taskGroupsApi.delete(groupToDelete.id);
+      queryClient.setQueryData(["taskGroups"], (old) =>
+        old?.filter((group) => group.id !== groupToDelete.id)
+      );
       setDeleteModalVisible(false);
       setGroupToDelete(null);
-      fetchGroups();
+      // fetchGroups();
     } catch (error) {
       console.error("Error deleting group:", error);
     }
@@ -133,7 +167,8 @@ function TaskGroups() {
       setItemModalVisible(false);
       setEditingItem(null);
       itemForm.resetFields();
-      fetchGroups();
+      queryClient.invalidateQueries({ queryKey: ["taskGroups"] });
+      // fetchGroups();
     } catch (error) {
       console.error("Error updating task item:", error);
     }
@@ -144,7 +179,8 @@ function TaskGroups() {
     e.stopPropagation();
     try {
       await taskGroupsApi.deleteItem(itemId);
-      fetchGroups();
+      queryClient.invalidateQueries({ queryKey: ["taskGroups"] });
+      // fetchGroups();
     } catch (error) {
       console.error("Error deleting task item:", error);
     }
@@ -162,7 +198,8 @@ function TaskGroups() {
       newTaskForm.resetFields();
       setNewTaskModalVisible(false); // close the modal
       setEditingGroup(null); // reset the editing group
-      fetchGroups();
+      queryClient.invalidateQueries({ queryKey: ["taskGroups"] });
+      // fetchGroups();
     } catch (error) {
       console.error("Error adding task to group:", error);
     }

@@ -1,52 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import dayjs from "dayjs";
 
-// Cache configuration
-const CACHE_CONFIG = {
-  TODOS: {
-    key: "todos_cache",
-    ttl: 5 * 60 * 1000, // 5 minutes
-  },
-  TASK_GROUPS: {
-    key: "task_groups_cache",
-    ttl: 15 * 60 * 1000, // 15 minutes
-  },
-  STATS: {
-    key: "stats_cache",
-    ttl: 30 * 60 * 1000, // 30 minutes
-  },
-};
-
-// Cache utilities
-const cache = {
-  get: (key) => {
-    const cached = localStorage.getItem(key);
-    if (!cached) return null;
-
-    const { data, timestamp } = JSON.parse(cached);
-    const config = Object.values(CACHE_CONFIG).find((c) => c.key === key);
-
-    if (Date.now() - timestamp > config.ttl) {
-      localStorage.removeItem(key);
-      return null;
-    }
-
-    return data;
-  },
-  set: (key, data) => {
-    localStorage.setItem(
-      key,
-      JSON.stringify({
-        data,
-        timestamp: Date.now(),
-      })
-    );
-  },
-  invalidate: (key) => {
-    localStorage.removeItem(key);
-  },
-};
-
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
@@ -106,41 +60,40 @@ export const todoApi = {
   async getAll() {
     const user = await getAuthenticatedUser();
 
-    // Check cache first
-    const cached = cache.get(CACHE_CONFIG.TODOS.key);
-    if (cached) {
-      return cached;
-    }
-
-    // Fetch from server if not cached
-    const data = handleSupabaseResponse(
+    return handleSupabaseResponse(
       await supabase
         .from("todos")
         .select("*")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
     );
-
-    // Cache the result
-    cache.set(CACHE_CONFIG.TODOS.key, data);
-    return data;
   },
 
   // DELETE ALL TODOS (NON-COMPLETED / CURRENT)
   async clearAll() {
     const user = await getAuthenticatedUser();
 
-    const result = handleSupabaseResponse(
+    return handleSupabaseResponse(
       await supabase
         .from("todos")
         .delete()
         .eq("is_completed", false)
         .eq("user_id", user.id)
     );
+  },
 
-    // Invalidate todos cache
-    cache.invalidate(CACHE_CONFIG.TODOS.key);
-    return result;
+  // ARCHIVE AND DELETE COMPLETED TASKS
+  async archiveAndClear() {
+    await getAuthenticatedUser();
+    try {
+      await supabase.rpc("archive_completed_todos"); // First move completed tasks to completed_todos table
+      return handleSupabaseResponse(
+        await supabase.from("todos").delete().not("id", "is", null) // Then delete all todos
+      );
+    } catch (error) {
+      console.error("Error archiving and clearing todos:", error);
+      throw error;
+    }
   },
 
   // GET TODOS BY HASHTAG
@@ -160,7 +113,7 @@ export const todoApi = {
   async update(id, task, hashtag, isPriority) {
     const user = await getAuthenticatedUser();
 
-    const result = handleSupabaseResponse(
+    return handleSupabaseResponse(
       await supabase
         .from("todos")
         .update({ task, hashtag, is_priority: isPriority })
@@ -169,17 +122,13 @@ export const todoApi = {
         .select()
         .single()
     );
-
-    // Invalidate todos cache
-    cache.invalidate(CACHE_CONFIG.TODOS.key);
-    return result;
   },
 
   // UPDATE TODO COMPLETED STATUS
   async toggleComplete(id, isCompleted) {
     const user = await getAuthenticatedUser();
 
-    const result = handleSupabaseResponse(
+    return handleSupabaseResponse(
       await supabase
         .from("todos")
         .update({
@@ -191,21 +140,11 @@ export const todoApi = {
         .select()
         .single()
     );
-
-    // Invalidate todos cache
-    cache.invalidate(CACHE_CONFIG.TODOS.key);
-    return result;
   },
 
   // GET STATISTICS BY HASHTAG
   async getStatistics() {
     const user = await getAuthenticatedUser();
-
-    // Check cache first
-    const cached = cache.get(CACHE_CONFIG.STATS.key);
-    if (cached) {
-      return cached;
-    }
 
     const { data: todos, error } = await supabase
       .from("todos")
@@ -240,11 +179,7 @@ export const todoApi = {
       return acc;
     }, {});
 
-    const result = Object.values(stats);
-
-    // Cache the result
-    cache.set(CACHE_CONFIG.STATS.key, result);
-    return result;
+    return Object.values(stats);
   },
 
   // Get completion data for heatmap
@@ -338,14 +273,7 @@ export const taskGroupsApi = {
   // GET ALL TASK GROUPS
   async getAll() {
     const user = await getAuthenticatedUser();
-
-    // Check cache first
-    const cached = cache.get(CACHE_CONFIG.TASK_GROUPS.key);
-    if (cached) {
-      return cached;
-    }
-
-    const data = handleSupabaseResponse(
+    return handleSupabaseResponse(
       await supabase
         .from("task_groups")
         .select(
@@ -357,10 +285,6 @@ export const taskGroupsApi = {
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
     );
-
-    // Cache the result
-    cache.set(CACHE_CONFIG.TASK_GROUPS.key, data);
-    return data;
   },
 
   // UPDATE TASK GROUP
