@@ -11,7 +11,6 @@ import {
   Dropdown,
   Empty,
   Switch,
-  // Carousel,
 } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -19,7 +18,7 @@ import {
   faTrashCan,
   faEllipsisVertical,
 } from "@fortawesome/free-solid-svg-icons";
-import dayjs from "dayjs";
+
 import MobileHeader from "./MobileHeader";
 import { motion, AnimatePresence } from "motion/react";
 import { todoApi, subscribeToTodos } from "../lib/supabase";
@@ -38,9 +37,6 @@ function TodoList() {
   const [editedPriority, setEditedPriority] = useState(false);
   const [editedHashtag, setEditedHashtag] = useState("");
   const [showCompleted, setShowCompleted] = useState(false);
-  const [lastCheckDate, setLastCheckDate] = useState(
-    dayjs().format("YYYY-MM-DD")
-  );
   const [clearModalVisible, setClearModalVisible] = useState(false);
   const { user } = useAuth();
   const { isDarkMode } = useTheme(); // Access theme context
@@ -59,42 +55,48 @@ function TodoList() {
     }
   }, []);
 
-  // Check for date change and clear todos at midnight
-  useEffect(() => {
-    const checkDateChange = async () => {
-      const currentDate = dayjs().format("YYYY-MM-DD");
-      if (currentDate !== lastCheckDate) {
-        try {
-          await todoApi.archiveAndClear();
-          setLastCheckDate(currentDate);
-          await fetchTasks(); // Refresh the task list
-        } catch (error) {
-          console.error("Error clearing todos at midnight:", error);
-        }
-      }
-    };
-
-    // Check every minute
-    const interval = setInterval(checkDateChange, 60000);
-    return () => clearInterval(interval);
-  }, [lastCheckDate, fetchTasks]);
-
   useEffect(() => {
     fetchTasks();
 
     // Subscribe to real-time updates
     const subscription = subscribeToTodos((payload) => {
       if (payload.eventType === "INSERT") {
+        // Update local state and cache
         setTasks((current) => [payload.new, ...current]);
+        localStorage.setItem(
+          "todos_cache",
+          JSON.stringify({
+            data: [payload.new, ...tasks],
+            timestamp: Date.now(),
+          })
+        );
       } else if (payload.eventType === "DELETE") {
+        // Update local state and cache
         setTasks((current) =>
           current.filter((task) => task.id !== payload.old.id)
         );
+        localStorage.setItem(
+          "todos_cache",
+          JSON.stringify({
+            data: tasks.filter((task) => task.id !== payload.old.id),
+            timestamp: Date.now(),
+          })
+        );
       } else if (payload.eventType === "UPDATE") {
+        // Update local state and cache
         setTasks((current) =>
           current.map((task) =>
             task.id === payload.new.id ? payload.new : task
           )
+        );
+        localStorage.setItem(
+          "todos_cache",
+          JSON.stringify({
+            data: tasks.map((task) =>
+              task.id === payload.new.id ? payload.new : task
+            ),
+            timestamp: Date.now(),
+          })
         );
       }
     });
