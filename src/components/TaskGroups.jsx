@@ -44,7 +44,7 @@ function TaskGroups() {
   const { isDarkMode } = useTheme(); // Access theme context
 
   // Query task groups
-  const { data: groupsData, isLoading } = useQuery({
+  const { data: groupsData } = useQuery({
     queryKey: ["taskGroups"],
     queryFn: taskGroupsApi.getAll,
     initialData: () => {

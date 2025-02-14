@@ -48,7 +48,7 @@ function TodoList() {
     user?.user_metadata?.name || user?.email?.split("@")[0] || "there";
 
   // Query tasks
-  const { data: tasksData, isLoading } = useQuery({
+  const { data: tasksData } = useQuery({
     queryKey: ["todos"],
     queryFn: todoApi.getAll,
     initialData: () => {

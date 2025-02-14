@@ -11,7 +11,7 @@ function Statistics() {
   const [heatmapData, setHeatmapData] = useState({});
 
   // Query statistics
-  const { data: stats, isLoading: isLoadingStats } = useQuery({
+  const { data: stats } = useQuery({
     queryKey: ["statistics"],
     queryFn: todoApi.getStatistics,
     initialData: () => {
@@ -28,7 +28,7 @@ function Statistics() {
   });
 
   // Query heatmap data for each category
-  const { data: heatmapStats, isLoading: isLoadingHeatmap } = useQuery({
+  const { data: heatmapStats } = useQuery({
     queryKey: ["heatmapData", stats],
     queryFn: async () => {
       if (!stats) return {};
@@ -113,22 +113,16 @@ function Statistics() {
       <div className="hidden md:flex items-center justify-center h-14">
         <h2 className="text-lg font-semibold">Statistics</h2>
       </div>
-      {isLoadingStats || isLoadingHeatmap ? (
-        <div className="flex justify-center py-8">
-          <Spin size="large" />
-        </div>
-      ) : (
-        <div className="space-y-6">
-          {categoryStats.map((category) => (
-            <Heatmap
-              key={category.name}
-              data={heatmapData[category.name] || []}
-              hashtag={category.name}
-              onDeleteCategory={handleDeleteCategory}
-            />
-          ))}
-        </div>
-      )}
+      <div className="space-y-6">
+        {categoryStats.map((category) => (
+          <Heatmap
+            key={category.name}
+            data={heatmapData[category.name] || []}
+            hashtag={category.name}
+            onDeleteCategory={handleDeleteCategory}
+          />
+        ))}
+      </div>
     </div>
   );
 }
