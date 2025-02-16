@@ -1,17 +1,31 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Navigate, useNavigate } from "react-router-dom";
 import { Form, Input, Button, Typography, message } from "antd";
 import { LockOutlined } from "@ant-design/icons";
 import { supabase } from "../lib/supabase";
+import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 
 const { Title, Text } = Typography;
 
 function ResetPassword() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [session, setSession] = useState(null);
   const { isDarkMode } = useTheme();
 
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+  }, []);
+
+  if (!session) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // HANDLE PASSWORD RESET
   const handlePasswordReset = async (values) => {
     try {
       setLoading(true);
