@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Button,
   Modal,
@@ -43,6 +43,44 @@ function TaskGroups() {
   const [newTaskForm] = Form.useForm();
   const { isDarkMode } = useTheme(); // Access theme context
 
+  // Add task group mutation
+  const addTaskGroupMutation = useMutation({
+    mutationFn: async ({ name, description, tasks }) => {
+      const group = await taskGroupsApi.create(name, description);
+      if (tasks?.length) {
+        await taskGroupsApi.addItems(group.id, tasks);
+      }
+      return group;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["taskGroups"] });
+    },
+  });
+
+  // Add items mutation
+  const addItemsMutation = useMutation({
+    mutationFn: async ({ groupId, items }) => {
+      return await taskGroupsApi.addItems(groupId, items);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["taskGroups"] });
+    },
+  });
+
+  // Add to todos mutation
+  const addTodosMutation = useMutation({
+    mutationFn: async (groupId) => {
+      return await taskGroupsApi.addToTodos(groupId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["todos"] });
+      Modal.success({
+        title: "Tasks Added",
+        content: "All tasks from this group have been added to your todo list.",
+      });
+    },
+  });
+
   // Query task groups
   const { data: groupsData } = useQuery({
     queryKey: ["taskGroups"],
@@ -81,37 +119,57 @@ function TaskGroups() {
   // };
 
   // HANDLE CREATE GROUP
+  // const handleCreateGroup = async (values) => {
+  //   try {
+  //     if (editingGroup) {
+  //       const updatedGroup = await taskGroupsApi.update(
+  //         editingGroup.id,
+  //         values.name,
+  //         values.description
+  //       );
+  //       queryClient.setQueryData(["taskGroups"], (old) =>
+  //         old?.map((group) =>
+  //           group.id === updatedGroup.id ? updatedGroup : group
+  //         )
+  //       );
+  //     } else {
+  //       const group = await taskGroupsApi.create(
+  //         values.name,
+  //         values.description
+  //       );
+  //       if (values.tasks) {
+  //         const tasks = values.tasks.map((task) => ({
+  //           task: task.task,
+  //           hashtag: task.hashtag,
+  //         }));
+  //         await taskGroupsApi.addItems(group.id, tasks);
+  //       }
+  //     }
+  //     form.resetFields();
+  //     setIsModalVisible(false);
+  //     setEditingGroup(null);
+  //     queryClient.invalidateQueries({ queryKey: ["taskGroups"] });
+  //     // fetchGroups();
+  //   } catch (error) {
+  //     console.error("Error creating group:", error);
+  //   }
+  // };
+
+  // HANDLE CREATE GROUP
   const handleCreateGroup = async (values) => {
     try {
-      if (editingGroup) {
-        const updatedGroup = await taskGroupsApi.update(
-          editingGroup.id,
-          values.name,
-          values.description
-        );
-        queryClient.setQueryData(["taskGroups"], (old) =>
-          old?.map((group) =>
-            group.id === updatedGroup.id ? updatedGroup : group
-          )
-        );
-      } else {
-        const group = await taskGroupsApi.create(
-          values.name,
-          values.description
-        );
-        if (values.tasks) {
-          const tasks = values.tasks.map((task) => ({
-            task: task.task,
-            hashtag: task.hashtag,
-          }));
-          await taskGroupsApi.addItems(group.id, tasks);
-        }
-      }
+      await addTaskGroupMutation.mutateAsync({
+        name: values.name,
+        description: values.description,
+        tasks: values.tasks?.map((task) => ({
+          task: task.task,
+          hashtag: task.hashtag,
+        })),
+      });
+
       form.resetFields();
       setIsModalVisible(false);
       setEditingGroup(null);
-      queryClient.invalidateQueries({ queryKey: ["taskGroups"] });
-      // fetchGroups();
     } catch (error) {
       console.error("Error creating group:", error);
     }
@@ -146,7 +204,8 @@ function TaskGroups() {
   // HANDLE ADD TODOS
   const handleAddToTodos = async (groupId) => {
     try {
-      await taskGroupsApi.addToTodos(groupId);
+      // await taskGroupsApi.addToTodos(groupId);
+      await addTodosMutation.mutateAsync(groupId);
       Modal.success({
         title: "Tasks Added",
         content: "All tasks from this group have been added to your todo list.",
@@ -187,19 +246,38 @@ function TaskGroups() {
   };
 
   //   HANDLE ADD TASK TO GROUP
+  // const handleAddTaskToGroup = async (values) => {
+  //   try {
+  //     await taskGroupsApi.addItems(editingGroup.id, [
+  //       {
+  //         task: values.task,
+  //         hashtag: values.hashtag,
+  //       },
+  //     ]);
+  //     newTaskForm.resetFields();
+  //     setNewTaskModalVisible(false); // close the modal
+  //     setEditingGroup(null); // reset the editing group
+  //     queryClient.invalidateQueries({ queryKey: ["taskGroups"] });
+  //     // fetchGroups();
+  //   } catch (error) {
+  //     console.error("Error adding task to group:", error);
+  //   }
+  // };
   const handleAddTaskToGroup = async (values) => {
     try {
-      await taskGroupsApi.addItems(editingGroup.id, [
-        {
-          task: values.task,
-          hashtag: values.hashtag,
-        },
-      ]);
+      await addItemsMutation.mutateAsync({
+        groupId: editingGroup.id,
+        items: [
+          {
+            task: values.task,
+            hashtag: values.hashtag,
+          },
+        ],
+      });
+
       newTaskForm.resetFields();
       setNewTaskModalVisible(false); // close the modal
       setEditingGroup(null); // reset the editing group
-      queryClient.invalidateQueries({ queryKey: ["taskGroups"] });
-      // fetchGroups();
     } catch (error) {
       console.error("Error adding task to group:", error);
     }
