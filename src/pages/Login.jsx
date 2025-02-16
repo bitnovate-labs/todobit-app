@@ -11,6 +11,7 @@ const { Title, Text } = Typography;
 function Login() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const safeAreaTop = "env(safe-area-inset-top)";
   const [resetModalVisible, setResetModalVisible] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [resetLoading, setResetLoading] = useState(false);
@@ -44,7 +45,7 @@ function Login() {
     try {
       setResetLoading(true);
       const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
-        redirectTo: `${import.meta.env.VITE_APP_URL}/reset-password`,
+        redirectTo: `${window.location.origin}/reset-password`,
       });
 
       if (error) throw error;
@@ -61,11 +62,12 @@ function Login() {
 
   return (
     <div
-      className={`h-screen overflow-hidden grid grid-rows-3 justify-center ${
+      className={`min-h-screen overflow-hidden grid grid-rows-3 justify-center ${
         isDarkMode
           ? "bg-gray"
           : "bg-gradient-to-b from-blue-700 via-blue-200 to-white"
       }`}
+      style={{ paddingTop: safeAreaTop }}
     >
       <div className="m-auto">
         <img src={login_image} alt="login image" className="opacity-70 px-20" />

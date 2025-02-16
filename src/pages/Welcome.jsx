@@ -10,14 +10,16 @@ const { Title, Paragraph, Text } = Typography;
 function Welcome() {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
+  const safeAreaTop = "env(safe-area-inset-top)";
 
   return (
     <div
-      className={`h-screen overflow-hidden flex flex-col items-center justify-center ${
+      className={`min-h-screen overflow-hidden flex flex-col items-center justify-center ${
         isDarkMode
           ? "bg-gray"
           : "bg-gradient-to-b from-blue-700 via-blue-200 via-60% to-white"
       }`}
+      style={{ paddingTop: safeAreaTop }}
     >
       <motion.div
         initial={{ opacity: 0, y: 20 }}

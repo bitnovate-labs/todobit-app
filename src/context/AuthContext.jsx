@@ -12,8 +12,6 @@ export function AuthProvider({ children }) {
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const [authType, setAuthType] = useState(null);
-  const [isPasswordReset, setIsPasswordReset] = useState(false);
 
   const refreshUser = () => setRefreshTrigger((prev) => prev + 1);
 
@@ -33,11 +31,6 @@ export function AuthProvider({ children }) {
     // });
     // setLoading(false);
 
-    // Get the type from URL parameters
-    const type = searchParams.get("type");
-    setAuthType(type);
-    setIsPasswordReset(type === "recovery");
-
     // Check active sessions and handle auth state
     const initializeAuth = async () => {
       try {
@@ -46,21 +39,29 @@ export function AuthProvider({ children }) {
         } = await supabase.auth.getSession();
         setUser(session?.user ?? null);
 
-        if (isPasswordReset && session?.user) {
+        // Check if we're in a password reset flow
+        const accessToken = searchParams.get("access_token");
+        const type = searchParams.get("type");
+
+        if (type === "recovery" && accessToken) {
           navigate("/reset-password");
           return;
         }
 
-        if (!session?.user && location.pathname === "/reset-password") {
+        if (
+          !session?.user &&
+          !accessToken &&
+          location.pathname === "/reset-password"
+        ) {
           navigate("/login");
           return;
         }
 
-        // Only redirect to home if not in password reset flow
+        // Only redirect to home if not in password reset flow and user is logged in
         if (
           session?.user &&
-          !isPasswordReset &&
-          location.pathname === "/login"
+          location.pathname === "/login" &&
+          type !== "recovery"
         ) {
           navigate("/");
         }
@@ -108,17 +109,10 @@ export function AuthProvider({ children }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
-
-      if (
-        _event === "PASSWORD_RECOVERY" ||
-        (isPasswordReset && session?.user)
-      ) {
-        navigate("/reset-password");
-      }
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate, location.pathname, searchParams, authType]);
+  });
 
   // SIGN UP
   const signUp = async (email, password) => {
