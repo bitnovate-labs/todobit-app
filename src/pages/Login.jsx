@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Form, Input, Button, Typography, message } from "antd";
+import { Form, Input, Button, Typography, message, Modal } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import { supabase } from "../lib/supabase";
 import login_image from "../assets/login_img.png";
@@ -11,6 +11,9 @@ const { Title, Text } = Typography;
 function Login() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [resetModalVisible, setResetModalVisible] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetLoading, setResetLoading] = useState(false);
   const { isDarkMode } = useTheme();
 
   // HANDLE LOGIN
@@ -28,6 +31,31 @@ function Login() {
       message.error(error.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // HANDLE PASSWORD RESET
+  const handlePasswordReset = async () => {
+    if (!resetEmail) {
+      message.error("Please enter your email address");
+      return;
+    }
+
+    try {
+      setResetLoading(true);
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+        redirectTo: `${window.location.origin}/login`,
+      });
+
+      if (error) throw error;
+
+      message.success("Password reset instructions sent to your email");
+      setResetModalVisible(false);
+      setResetEmail("");
+    } catch (error) {
+      message.error(error.message);
+    } finally {
+      setResetLoading(false);
     }
   };
 
@@ -93,6 +121,20 @@ function Login() {
             />
           </Form.Item>
 
+          {/* FORGOT PASSWORD */}
+          <div className="text-right mb-4">
+            <Button
+              type="link"
+              onClick={() => setResetModalVisible(true)}
+              className={`p-0 ${
+                isDarkMode ? "text-gray-300" : "text-blue-600"
+              }`}
+            >
+              Forgot Password?
+            </Button>
+          </div>
+
+          {/* SIGN IN BUTTON */}
           <Form.Item>
             <Button
               type="primary"
@@ -108,6 +150,7 @@ function Login() {
           </Form.Item>
         </Form>
 
+        {/* SIGN UP BUTTON */}
         <div className="text-center">
           <Text
             className={` ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
@@ -123,6 +166,30 @@ function Login() {
           </Text>
         </div>
       </div>
+
+      {/* PASSWORD RESET MODAL */}
+      <Modal
+        title="Reset Password"
+        open={resetModalVisible}
+        onOk={handlePasswordReset}
+        onCancel={() => {
+          setResetModalVisible(false);
+          setResetEmail("");
+        }}
+        confirmLoading={resetLoading}
+      >
+        <div className="space-y-4">
+          <p>
+            Enter your email address to receive password reset instructions.
+          </p>
+          <Input
+            prefix={<UserOutlined />}
+            placeholder="Email"
+            value={resetEmail}
+            onChange={(e) => setResetEmail(e.target.value)}
+          />
+        </div>
+      </Modal>
     </div>
   );
 }
