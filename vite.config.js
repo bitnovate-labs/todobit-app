@@ -38,7 +38,7 @@ export default defineConfig({
             src: "/pwa-192x192.png",
             sizes: "192x192",
             type: "image/png",
-            purpose: "any maskable",
+            purpose: "maskable",
           },
           {
             src: "/pwa-512x512.png",
@@ -55,7 +55,7 @@ export default defineConfig({
             src: "/apple-touch-icon-180x180.png",
             sizes: "512x512",
             type: "image/png",
-            purpose: "any maskable",
+            purpose: "maskable",
           },
         ],
       },
