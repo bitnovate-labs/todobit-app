@@ -1,8 +1,8 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button, Typography } from "antd";
 import { motion } from "framer-motion";
-// import welcome_image from "../assets/welcomepage.png";
-import welcome_image from "../assets/welcome_image.png";
+// import welcome_image from "../assets/welcome_image.png";
+import welcome_image from "../assets/welcome_image1.png";
 import { useTheme } from "../context/ThemeContext";
 
 const { Title, Paragraph, Text } = Typography;
@@ -44,9 +44,10 @@ function Welcome() {
                 Welcome to Dobit
               </span>
             </Title>
-            <Paragraph className="text-base text-gray-500 mx-10">
-              A todo-habit tracking app to over <br /> 10 million influencers
-              around the global of the world.
+            <Paragraph className="text-sm text-gray-500 mx-10 pb-10">
+              An all-in-one to-do and habit-tracking application designed to
+              help you build consistency and <br /> stay on track with your
+              daily progress.
             </Paragraph>
             <Button
               type="primary"

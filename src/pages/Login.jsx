@@ -44,7 +44,9 @@ function Login() {
     try {
       setResetLoading(true);
       const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: `${
+          import.meta.env.VITE_APP_URL || window.location.origin
+        }/reset-password`,
       });
 
       if (error) throw error;
