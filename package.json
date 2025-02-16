@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "generate-pwa-assets": "pwa-assets-generator --preset minimal public/logo1.png --output public --padding 0 --background \"#5e17eb\""
+    "generate-pwa-assets": "pwa-assets-generator --preset minimal public/logo1.png"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
