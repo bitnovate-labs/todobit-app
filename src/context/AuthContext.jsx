@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { Spin, message } from "antd";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
 const AuthContext = createContext({});
 
@@ -9,6 +9,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
@@ -29,10 +30,28 @@ export function AuthProvider({ children }) {
     //   }
     // });
     // setLoading(false);
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const initializeAuth = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      // Check if this is a password reset
+      const type = searchParams.get("type");
+      if (type === "recovery" && session?.user) {
+        navigate("/reset-password");
+        return;
+      }
+
       setUser(session?.user ?? null);
       setLoading(false);
-    });
+    };
+
+    initializeAuth();
+
+    // supabase.auth.getSession().then(({ data: { session } }) => {
+    //   setUser(session?.user ?? null);
+    //   setLoading(false);
+    // });
 
     // Listen for changes on auth state
     // const {
@@ -63,10 +82,16 @@ export function AuthProvider({ children }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+
+      // Handle password recovery
+      if (_event === "PASSWORD_RECOVERY") {
+        navigate("/reset-password");
+        return;
+      }
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate, location.pathname]);
+  }, [navigate, location.pathname, searchParams]);
 
   // SIGN UP
   const signUp = async (email, password) => {

@@ -46,8 +46,8 @@ function Welcome() {
             </Title>
             <Paragraph className="text-sm text-gray-500 mx-10 pb-10">
               An all-in-one to-do and habit-tracking application designed to
-              help you build consistency and <br /> stay on track with your
-              daily progress.
+              help you build consistency and stay on track with your daily
+              progress.
             </Paragraph>
             <Button
               type="primary"
