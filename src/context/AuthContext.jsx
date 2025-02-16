@@ -12,6 +12,7 @@ export function AuthProvider({ children }) {
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [authType, setAuthType] = useState(null);
 
   const refreshUser = () => setRefreshTrigger((prev) => prev + 1);
 
@@ -30,20 +31,31 @@ export function AuthProvider({ children }) {
     //   }
     // });
     // setLoading(false);
+
+    // Get the type from URL parameters
+    const type = searchParams.get("type");
+    setAuthType(type);
+
+    // Check active sessions and handle auth state
     const initializeAuth = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        setUser(session?.user ?? null);
 
-      // Check if this is a password reset
-      const type = searchParams.get("type");
-      if (type === "recovery" && session?.user) {
-        navigate("/reset-password");
-        return;
+        // Handle password recovery flow
+        if (type === "recovery" && session?.user) {
+          navigate("/reset-password");
+        } else if (!session?.user && location.pathname === "/reset-password") {
+          navigate("/login");
+        }
+
+        setLoading(false);
+      } catch (error) {
+        console.error("Auth initialization error:", error);
+        setLoading(false);
       }
-
-      setUser(session?.user ?? null);
-      setLoading(false);
     };
 
     initializeAuth();
@@ -83,15 +95,16 @@ export function AuthProvider({ children }) {
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
 
-      // Handle password recovery
-      if (_event === "PASSWORD_RECOVERY") {
+      if (
+        _event === "PASSWORD_RECOVERY" ||
+        (authType === "recovery" && session?.user)
+      ) {
         navigate("/reset-password");
-        return;
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate, location.pathname, searchParams]);
+  }, [navigate, location.pathname, searchParams, authType]);
 
   // SIGN UP
   const signUp = async (email, password) => {
