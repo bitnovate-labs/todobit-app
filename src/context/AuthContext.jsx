@@ -13,6 +13,7 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [authType, setAuthType] = useState(null);
+  const [isPasswordReset, setIsPasswordReset] = useState(false);
 
   const refreshUser = () => setRefreshTrigger((prev) => prev + 1);
 
@@ -35,6 +36,7 @@ export function AuthProvider({ children }) {
     // Get the type from URL parameters
     const type = searchParams.get("type");
     setAuthType(type);
+    setIsPasswordReset(type === "recovery");
 
     // Check active sessions and handle auth state
     const initializeAuth = async () => {
@@ -44,11 +46,23 @@ export function AuthProvider({ children }) {
         } = await supabase.auth.getSession();
         setUser(session?.user ?? null);
 
-        // Handle password recovery flow
-        if (type === "recovery" && session?.user) {
+        if (isPasswordReset && session?.user) {
           navigate("/reset-password");
-        } else if (!session?.user && location.pathname === "/reset-password") {
+          return;
+        }
+
+        if (!session?.user && location.pathname === "/reset-password") {
           navigate("/login");
+          return;
+        }
+
+        // Only redirect to home if not in password reset flow
+        if (
+          session?.user &&
+          !isPasswordReset &&
+          location.pathname === "/login"
+        ) {
+          navigate("/");
         }
 
         setLoading(false);
@@ -97,7 +111,7 @@ export function AuthProvider({ children }) {
 
       if (
         _event === "PASSWORD_RECOVERY" ||
-        (authType === "recovery" && session?.user)
+        (isPasswordReset && session?.user)
       ) {
         navigate("/reset-password");
       }
