@@ -16,6 +16,7 @@ import TaskGroups from "./TaskGroups";
 import Profile from "./Profile";
 import MobileNavigation from "./MobileNavigation";
 import { useTheme } from "../context/ThemeContext";
+import ResetPassword from "../pages/ResetPassword";
 
 function AppContent() {
   const location = useLocation();
@@ -41,6 +42,7 @@ function AppContent() {
           <Route path="/" element={<Welcome />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Layout>
