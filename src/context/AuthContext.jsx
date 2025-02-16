@@ -12,24 +12,14 @@ export function AuthProvider({ children }) {
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [isPasswordReset, setIsPasswordReset] = useState(false);
 
   const refreshUser = () => setRefreshTrigger((prev) => prev + 1);
 
   useEffect(() => {
-    // Check active sessions (auth state) and sets the user
-    // supabase.auth.getSession().then(({ data: { session } }) => {
-    //   setUser(session?.user ?? null);
-    //   if (!session?.user) {
-    //     // Only redirect to /login if not already there
-    //     if (
-    //       location.pathname !== "/login" &&
-    //       location.pathname !== "/welcome"
-    //     ) {
-    //       navigate("/login");
-    //     }
-    //   }
-    // });
-    // setLoading(false);
+    const type = searchParams.get("type");
+    const accessToken = searchParams.get("access_token");
+    setIsPasswordReset(type === "recovery" && !!accessToken);
 
     // Check active sessions and handle auth state
     const initializeAuth = async () => {
@@ -39,18 +29,14 @@ export function AuthProvider({ children }) {
         } = await supabase.auth.getSession();
         setUser(session?.user ?? null);
 
-        // Check if we're in a password reset flow
-        const accessToken = searchParams.get("access_token");
-        const type = searchParams.get("type");
-
-        if (type === "recovery" && accessToken) {
+        if (isPasswordReset) {
           navigate("/reset-password");
           return;
         }
 
         if (
           !session?.user &&
-          !accessToken &&
+          !isPasswordReset &&
           location.pathname === "/reset-password"
         ) {
           navigate("/login");
@@ -61,7 +47,7 @@ export function AuthProvider({ children }) {
         if (
           session?.user &&
           location.pathname === "/login" &&
-          type !== "recovery"
+          !isPasswordReset
         ) {
           navigate("/");
         }
@@ -75,44 +61,20 @@ export function AuthProvider({ children }) {
 
     initializeAuth();
 
-    // supabase.auth.getSession().then(({ data: { session } }) => {
-    //   setUser(session?.user ?? null);
-    //   setLoading(false);
-    // });
-
-    // Listen for changes on auth state
-    // const {
-    //   data: { subscription },
-    // } = supabase.auth.onAuthStateChange((_event, session) => {
-    //   setUser(session?.user ?? null);
-    //   if (!session?.user) {
-    //     // Only redirect to /login if not already there
-    //     if (
-    //       location.pathname !== "/login" &&
-    //       location.pathname !== "/welcome"
-    //     ) {
-    //       navigate("/login");
-    //     }
-    //   }
-
-    //   // Check if this is a new user (sign up)
-    //   if (
-    //     _event === "SIGNED_IN" &&
-    //     session?.user?.created_at === session?.user?.last_sign_in_at
-    //   ) {
-    //     // Clear any existing completed tasks for the new user
-    //     clearCompletedTasks(session.user.id).catch(console.error);
-    //   }
-    // });
-
+    // Subscribe to auth state changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+
+      // Handle password reset completion
+      if (_event === "PASSWORD_RECOVERY") {
+        navigate("/reset-password");
+      }
     });
 
     return () => subscription.unsubscribe();
-  });
+  }, [navigate, location.pathname, searchParams]);
 
   // SIGN UP
   const signUp = async (email, password) => {
