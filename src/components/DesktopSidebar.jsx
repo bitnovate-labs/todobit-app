@@ -6,6 +6,7 @@ import {
   CheckCircleOutlined,
   SettingOutlined,
   FolderOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 
 function DesktopSidebar() {

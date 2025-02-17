@@ -61,7 +61,6 @@ function AppContent() {
               <Route path="/stats" element={<Statistics />} />
               <Route path="/groups" element={<TaskGroups />} />
               <Route path="/completed" element={<CompletedTasks />} />
-              <Route path="/profile" element={<Profile />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

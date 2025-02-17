@@ -19,8 +19,7 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const type = searchParams.get("type");
     const accessToken = searchParams.get("access_token");
-    const isRecovery =
-      (type === "recovery" || type === "passwordRecovery") && !!accessToken;
+    const isRecovery = type === "recovery" && !!accessToken;
     setIsPasswordReset(isRecovery);
 
     // Check active sessions and handle auth state
@@ -29,14 +28,12 @@ export function AuthProvider({ children }) {
         const {
           data: { session },
         } = await supabase.auth.getSession();
+        setUser(session?.user ?? null);
 
         if (isRecovery) {
           navigate("/reset-password");
-          setUser(session?.user ?? null);
           return;
         }
-
-        setUser(session?.user ?? null);
 
         if (
           !session?.user &&
@@ -67,18 +64,13 @@ export function AuthProvider({ children }) {
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
 
-      // Handle password reset
-      if (
-        _event === "PASSWORD_RECOVERY" ||
-        (_event === "SIGNED_IN" && isPasswordReset)
-      ) {
+      if (_event === "PASSWORD_RECOVERY") {
         navigate("/reset-password");
-        return;
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate, searchParams, isPasswordReset]);
+  }, [navigate, searchParams, location.pathname]);
 
   // SIGN UP
   const signUp = async (email, password) => {
