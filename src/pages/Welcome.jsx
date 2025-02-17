@@ -14,7 +14,7 @@ function Welcome() {
 
   return (
     <div
-      className={`min-h-screen overflow-hidden flex flex-col items-center justify-center ${
+      className={`h-screen overflow-hidden flex flex-col items-center justify-center ${
         isDarkMode
           ? "bg-gray"
           : "bg-gradient-to-b from-blue-700 via-blue-200 via-60% to-white"

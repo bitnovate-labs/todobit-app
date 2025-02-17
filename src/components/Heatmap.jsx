@@ -210,7 +210,7 @@ function Heatmap({ data = [], hashtag, onDeleteCategory }) {
       {/* DRAWER */}
       <Drawer
         title={`${capitalize(hashtag)} - ${selectedDate?.format(
-          "MMM D, YYYY"
+          "ddd, D MMM YYYY"
         )}`}
         placement="right"
         open={drawerVisible}

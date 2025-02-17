@@ -62,7 +62,7 @@ function Login() {
 
   return (
     <div
-      className={`min-h-screen overflow-hidden grid grid-rows-3 justify-center ${
+      className={`h-screen overflow-hidden grid grid-rows-3 justify-center ${
         isDarkMode
           ? "bg-gray"
           : "bg-gradient-to-b from-blue-700 via-blue-200 to-white"
