@@ -74,9 +74,12 @@ function TaskGroups() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["todos"] });
-      Modal.success({
+      const modal = Modal.success({
         title: "Tasks Added",
         content: "All tasks from this group have been added to your todo list.",
+        afterClose: () => {
+          modal.destroy();
+        },
       });
     },
   });
