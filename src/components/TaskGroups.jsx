@@ -297,7 +297,10 @@ function TaskGroups() {
           type="primary"
           //   icon={<PlusOutlined />}
           icon={<FontAwesomeIcon icon={faPlus} />}
-          onClick={() => setIsModalVisible(true)}
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsModalVisible(true);
+          }}
           className="mx-20 w-1/2 rounded-2xl"
         >
           Create
